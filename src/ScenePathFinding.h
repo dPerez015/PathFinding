@@ -5,6 +5,12 @@
 #include "Agent.h"
 #include "Path.h"
 
+struct Node {
+	Vector2D position;
+	float pes;
+	std::vector<Node*>conexiones;
+};
+
 class ScenePathFinding :
 	public Scene
 {
@@ -15,6 +21,10 @@ public:
 	void draw();
 	const char* getTitle();
 private:
+	//graph creation
+	std::vector<std::vector<Node>> graph;
+	void createGraph();
+
 	std::vector<Agent*> agents;
 	Vector2D coinPosition;
 	Vector2D currentTarget;
@@ -34,5 +44,4 @@ private:
 	Vector2D cell2pix(Vector2D cell);
 	Vector2D pix2cell(Vector2D pix);
 	bool isValidCell(Vector2D cell);
-
 };

@@ -35,6 +35,39 @@ ScenePathFinding::ScenePathFinding()
 
 }
 
+void ScenePathFinding::createGraph() {
+	for (int i = 0; i < num_cell_x; i++) {
+		std::vector<Node> graphCol(num_cell_y);
+		graph.push_back(graphCol);
+	}
+	for (int i = 0; i < num_cell_y; i++) {
+		for (int j = 0; j < num_cell_y; j++) {
+			Node node;
+			node.position = cell2pix(Vector2D(i, j));
+			node.pes = 1;
+			graph[1].push_back(node);
+		}
+	}
+
+	for (int i = 0; i < num_cell_x; i++) {
+		for (int j = 0; j < num_cell_y; j++) {
+			if (i != 0 && i != num_cell_x - 1) {
+				//bool accesible;
+				if (terrain[i + 1][j]==0)
+					graph[i][j].conexiones.push_back(&graph[i + 1][j]);
+					graph[i][j].conexiones.push_back(&graph[i - 1][j]);
+			}
+			if (j != 0 && j != num_cell_y - 1) {
+				if (terrain[i][j + 1] == 0)
+					graph[i][j].conexiones.push_back(&graph[i][j + 1]);
+				if (terrain[i][j - 1] == 0)
+					graph[i][j].conexiones.push_back(&graph[i][j - 1]);
+			}
+		}
+	}
+
+}
+
 ScenePathFinding::~ScenePathFinding()
 {
 	if (background_texture)
@@ -269,6 +302,7 @@ void ScenePathFinding::initMaze()
 				if (Vector2DUtils::IsInsideRect(cell_center, (float)maze_rects[b].x, (float)maze_rects[b].y, (float)maze_rects[b].w, (float)maze_rects[b].h))
 				{
 					terrain[i][j] = 0;
+
 				    break;
 				}  
 			}
