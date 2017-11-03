@@ -9,6 +9,7 @@ ScenePathFinding::ScenePathFinding()
 	num_cell_x = SRC_WIDTH / CELL_SIZE;
 	num_cell_y = SRC_HEIGHT / CELL_SIZE;
 	initMaze();
+	createGraph();
 	loadTextures("../res/maze.png", "../res/coin.png");
 
 	srand((unsigned int)time(NULL));
@@ -40,7 +41,7 @@ void ScenePathFinding::createGraph() {
 		std::vector<Node> graphCol(num_cell_y);
 		graph.push_back(graphCol);
 	}
-	for (int i = 0; i < num_cell_y; i++) {
+	for (int i = 0; i < num_cell_x; i++) {
 		for (int j = 0; j < num_cell_y; j++) {
 			Node node;
 			node.position = cell2pix(Vector2D(i, j));
@@ -51,22 +52,32 @@ void ScenePathFinding::createGraph() {
 
 	for (int i = 0; i < num_cell_x; i++) {
 		for (int j = 0; j < num_cell_y; j++) {
-			if (i != 0 && i != num_cell_x - 1) {
-				//bool accesible;
-				if (terrain[i + 1][j]==0)
-					graph[i][j].conexiones.push_back(&graph[i + 1][j]);
-					graph[i][j].conexiones.push_back(&graph[i - 1][j]);
-			}
-			if (j != 0 && j != num_cell_y - 1) {
-				if (terrain[i][j + 1] == 0)
-					graph[i][j].conexiones.push_back(&graph[i][j + 1]);
-				if (terrain[i][j - 1] == 0)
-					graph[i][j].conexiones.push_back(&graph[i][j - 1]);
+				if (terrain[(i + 1) % num_cell_x][j]==0){
+					graph[i][j].conexiones.push_back(&graph[(i + 1)%num_cell_x][j]);
+					graph[(i + 1) % num_cell_x][j].conexiones.push_back(&graph[(i)%num_cell_x][j]);
+				}
+				if (terrain[i][(j + 1)%num_cell_y] == 0){
+					graph[i][j].conexiones.push_back(&graph[i][(j + 1) % num_cell_y]);
+					graph[i][(j + 1) % num_cell_y].conexiones.push_back(&graph[i][j]);
+				}
+		}
+	}
+	for (int i = 0; i < num_cell_x; i++) {
+		int nodesErased = 0;
+		for (int j = 0; j < num_cell_y-nodesErased; j++) {
+			if (graph[i][j].conexiones.empty()) {
+				nodesErased++;
+				j--;
+				graph[i].erase(graph[i].begin() + j);
 			}
 		}
 	}
+}
+
+Vector2D FindInGraph(Vector2D position) {
 
 }
+
 
 ScenePathFinding::~ScenePathFinding()
 {
