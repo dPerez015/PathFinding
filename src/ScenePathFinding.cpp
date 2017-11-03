@@ -39,27 +39,28 @@ ScenePathFinding::ScenePathFinding()
 void ScenePathFinding::createGraph() {
 	for (int i = 0; i < num_cell_x; i++) {
 		std::vector<Node> graphCol(num_cell_y);
+		for (int j = 0; j < num_cell_y; j++) {
+			//Node node;
+			graphCol[j].position = cell2pix(Vector2D(i, j));
+			graphCol[j].pes = 1;
+			//graph[1].push_back(node);
+		}
 		graph.push_back(graphCol);
 	}
-	for (int i = 0; i < num_cell_x; i++) {
-		for (int j = 0; j < num_cell_y; j++) {
-			Node node;
-			node.position = cell2pix(Vector2D(i, j));
-			node.pes = 1;
-			graph[1].push_back(node);
-		}
-	}
+
 
 	for (int i = 0; i < num_cell_x; i++) {
 		for (int j = 0; j < num_cell_y; j++) {
-				if (terrain[(i + 1) % num_cell_x][j]==0){
-					graph[i][j].conexiones.push_back(&graph[(i + 1)%num_cell_x][j]);
-					graph[(i + 1) % num_cell_x][j].conexiones.push_back(&graph[(i)%num_cell_x][j]);
+			if (terrain[i][j] != 1) {
+				if (terrain[(i + 1) % num_cell_x][j] == 1) {
+					graph[i][j].conexiones.push_back(&graph[(i + 1) % num_cell_x][j]);
+					graph[(i + 1) % num_cell_x][j].conexiones.push_back(&graph[(i) % num_cell_x][j]);
 				}
-				if (terrain[i][(j + 1)%num_cell_y] == 0){
+				if (terrain[i][(j + 1) % num_cell_y] == 1) {
 					graph[i][j].conexiones.push_back(&graph[i][(j + 1) % num_cell_y]);
 					graph[i][(j + 1) % num_cell_y].conexiones.push_back(&graph[i][j]);
 				}
+			}
 		}
 	}
 	for (int i = 0; i < num_cell_x; i++) {
@@ -67,15 +68,24 @@ void ScenePathFinding::createGraph() {
 		for (int j = 0; j < num_cell_y-nodesErased; j++) {
 			if (graph[i][j].conexiones.empty()) {
 				nodesErased++;
-				j--;
 				graph[i].erase(graph[i].begin() + j);
+				j--;
 			}
 		}
 	}
 }
 
 Vector2D FindInGraph(Vector2D position) {
-
+	return Vector2D(0, 0);
+}
+void ScenePathFinding::drawGraph() {
+	for (int i = 0; i < num_cell_x; i++) {
+		for (int j = 0; j < graph[i].size(); j++) {
+			draw_circle(TheApp::Instance()->getRenderer(), graph[i][j].position.x, graph[i][j].position.y, (CELL_SIZE - 1) / 2, 0, 255, 255,255);
+			for (int h = 0; h < graph[i][j].conexiones.size(); h++)
+				SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), graph[i][j].position.x, graph[i][j].position.y, graph[i][j].conexiones[h]->position.x, graph[i][j].conexiones[h]->position.y);
+		}
+	}
 }
 
 
@@ -169,11 +179,12 @@ void ScenePathFinding::draw()
 
 	if (draw_grid)
 	{
-		SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
+		drawGraph();
+		/*SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
 		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
 		{
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), i, 0, i, SRC_HEIGHT);
-		}
+		}*/
 		for (int j = 0; j < SRC_HEIGHT; j = j += CELL_SIZE)
 		{
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), 0, j, SRC_WIDTH, j);

@@ -24,7 +24,8 @@ private:
 	//graph creation
 	std::vector<std::vector<Node>> graph;
 	void createGraph();
-	//hoal
+	//debugGraph
+	void drawGraph();
 
 	std::vector<Agent*> agents;
 	Vector2D coinPosition;
