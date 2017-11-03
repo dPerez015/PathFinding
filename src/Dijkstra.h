@@ -1,8 +1,10 @@
 #pragma once
 #include <iostream>
+#include "Vector2D.h"
 
 namespace dijkstra {
-	void applyDijkstra() {
+	std::vector<Vector2D> applyDijkstra() {
 
+		return;
 	}
 }
