@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include "Vector2D.h"
 
 namespace dijkstra {
