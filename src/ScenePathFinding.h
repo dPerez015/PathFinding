@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Agent.h"
 #include "Path.h"
+#include "list"
 
 struct Node {
 	Vector2D position;
@@ -23,6 +24,11 @@ public:
 private:
 	//graph creation
 	std::vector<std::vector<Node>> graph;
+	int v, h;
+	int v1, h1, numDelNodes;
+	void createGraphPorPasos();
+	void deleteNodesPorPaso();
+	Vector2D findInGraph(Vector2D);
 	void createGraph();
 	//debugGraph
 	void drawGraph();

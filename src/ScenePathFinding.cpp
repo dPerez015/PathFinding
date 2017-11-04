@@ -10,6 +10,11 @@ ScenePathFinding::ScenePathFinding()
 	num_cell_y = SRC_HEIGHT / CELL_SIZE;
 	initMaze();
 	createGraph();
+	/*v = 0;
+	h = 0;
+	v1 = 0;
+	h1 = 0;*/
+	numDelNodes = 0;
 	loadTextures("../res/maze.png", "../res/coin.png");
 
 	srand((unsigned int)time(NULL));
@@ -36,6 +41,8 @@ ScenePathFinding::ScenePathFinding()
 
 }
 
+
+
 void ScenePathFinding::createGraph() {
 	for (int i = 0; i < num_cell_x; i++) {
 		std::vector<Node> graphCol(num_cell_y);
@@ -48,13 +55,13 @@ void ScenePathFinding::createGraph() {
 		graph.push_back(graphCol);
 	}
 
-
+	
 	for (int i = 0; i < num_cell_x; i++) {
 		for (int j = 0; j < num_cell_y; j++) {
-			if (terrain[i][j] != 1) {
+			if (terrain[i][j] != 0) {
 				if (terrain[(i + 1) % num_cell_x][j] == 1) {
 					graph[i][j].conexiones.push_back(&graph[(i + 1) % num_cell_x][j]);
-					graph[(i + 1) % num_cell_x][j].conexiones.push_back(&graph[(i) % num_cell_x][j]);
+					graph[(i + 1) % num_cell_x][j].conexiones.push_back(&graph[i][j]);
 				}
 				if (terrain[i][(j + 1) % num_cell_y] == 1) {
 					graph[i][j].conexiones.push_back(&graph[i][(j + 1) % num_cell_y]);
@@ -63,7 +70,7 @@ void ScenePathFinding::createGraph() {
 			}
 		}
 	}
-	for (int i = 0; i < num_cell_x; i++) {
+	/*for (int i = 0; i < num_cell_x; i++) {
 		int nodesErased = 0;
 		for (int j = 0; j < num_cell_y-nodesErased; j++) {
 			if (graph[i][j].conexiones.empty()) {
@@ -72,12 +79,63 @@ void ScenePathFinding::createGraph() {
 				j--;
 			}
 		}
-	}
+	}*/
 }
 
-Vector2D FindInGraph(Vector2D position) {
-	return Vector2D(0, 0);
+void ScenePathFinding::deleteNodesPorPaso() {
+	if(h1<num_cell_x){
+		if (v1 < num_cell_y - numDelNodes) {
+			if (graph[h1][v1].conexiones.empty()) {
+				numDelNodes++;
+				graph[h1].erase(graph[h1].begin() + v1);
+				v1--;
+			}
+			v1++;
+		}
+		else {
+			numDelNodes = 0;
+			h1++;
+		}
+	}
 }
+void ScenePathFinding::createGraphPorPasos() {
+	if (h < num_cell_x) {
+		if (v<num_cell_y) {
+			if (terrain[h][v] != 0) {
+				if (terrain[(h + 1) % num_cell_x][v] == 1) {
+					graph[h][v].conexiones.push_back(&graph[(h + 1) % num_cell_x][v]);
+					graph[(h + 1) % num_cell_x][v].conexiones.push_back(&graph[h][v]);
+				}
+				if (terrain[h][(v + 1) % num_cell_y] == 1) {
+					graph[h][v].conexiones.push_back(&graph[h][(v + 1) % num_cell_y]);
+					graph[h][(v + 1) % num_cell_y].conexiones.push_back(&graph[h][v]);
+				}
+			}
+			v++;
+		}
+		else {
+			h++;
+			v = 0;
+		}
+	}
+	else {
+		
+		deleteNodesPorPaso();
+		
+	}
+
+}
+
+/*vector2d inx = findInGraph(postion);
+dijkstra(graph[inx.x][inx.y],)*/
+/*
+Funció que retorna els index en el graph d'una posicio determinada
+*/
+Vector2D ScenePathFinding::findInGraph(Vector2D position) {
+	return pix2cell(position);
+	
+}
+
 void ScenePathFinding::drawGraph() {
 	for (int i = 0; i < num_cell_x; i++) {
 		for (int j = 0; j < graph[i].size(); j++) {
@@ -109,6 +167,8 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 	case SDL_KEYDOWN:
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
+		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
+			//deleteNodesPorPaso();
 		break;
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
@@ -150,6 +210,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition()))<3))
 							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 					}
+
 				}
 				else
 				{
@@ -179,16 +240,17 @@ void ScenePathFinding::draw()
 
 	if (draw_grid)
 	{
+		
+		SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
 		drawGraph();
-		/*SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
-		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
+		/*for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
 		{
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), i, 0, i, SRC_HEIGHT);
-		}*/
+		}
 		for (int j = 0; j < SRC_HEIGHT; j = j += CELL_SIZE)
 		{
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), 0, j, SRC_WIDTH, j);
-		}
+		}*/
 	}
 
 	for (int i = 0; i < (int)path.points.size(); i++)
