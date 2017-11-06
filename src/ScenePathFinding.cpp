@@ -159,9 +159,10 @@ dijkstra(graph[inx.x][inx.y],)*/
 /*
 Funció que retorna els index en el graph d'una posicio determinada
 */
-Vector2D ScenePathFinding::findInGraph(Vector2D position) {
-	return pix2cell(position);
+Node* ScenePathFinding::findInGraph(Vector2D position) {
+	Vector2D predictedPos=pix2cell(position);
 	
+	return &graph[predictedPos.x][predictedPos.y - wallsonCollumn(predictedPos.x, predictedPos.y)];
 }
 
 void ScenePathFinding::drawGraph() {

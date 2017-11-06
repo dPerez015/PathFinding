@@ -30,7 +30,7 @@ private:
 	int v1, h1, numDelNodes;
 	void createGraphPorPasos();
 	void deleteNodesPorPaso();
-	Vector2D findInGraph(Vector2D);
+	Node* findInGraph(Vector2D);
 	void createGraph();
 	//debugGraph
 	void drawGraph();
