@@ -5,12 +5,9 @@
 #include "Agent.h"
 #include "Path.h"
 #include "list"
-
-struct Node {
-	Vector2D position;
-	float pes;
-	std::vector<Node*>conexiones;
-};
+#include "Node.h"
+#include "GreedyFirstSearch.h"
+#include "utils.h"
 
 class ScenePathFinding :
 	public Scene

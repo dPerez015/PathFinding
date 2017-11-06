@@ -65,6 +65,15 @@
     <ClInclude Include="..\src\BFS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\GreedyFirstSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Heuristics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\spritesheet.png">
