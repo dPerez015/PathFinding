@@ -41,32 +41,60 @@ ScenePathFinding::ScenePathFinding()
 
 }
 
+int ScenePathFinding::wallsOnCollumn(int column) {
+	int ret=0;
+	for (int i = 0; i < num_cell_y; i++) {
+		if (terrain[column][i] == 0) {
+			ret++;
+		}
+	}
+	return ret;
+}
+
+int ScenePathFinding::wallsonCollumn(int column, int row) {
+	int ret = 0;
+	for (int i = row - 1; i >= 0; i--) {
+		if (terrain[column][i] == 0)
+			ret++;
+	}
+	return ret;
+}
+
 
 
 void ScenePathFinding::createGraph() {
 	for (int i = 0; i < num_cell_x; i++) {
-		std::vector<Node> graphCol(num_cell_y);
+		
+		std::vector<Node> graphCol;
 		for (int j = 0; j < num_cell_y; j++) {
-			//Node node;
-			graphCol[j].position = cell2pix(Vector2D(i, j));
-			graphCol[j].pes = 1;
-			//graph[1].push_back(node);
+			if (terrain[i][j] != 0) {
+				Node node;
+				node.position = cell2pix(Vector2D(i, j));
+				node.pes = 1;
+				graphCol.push_back(node);
+			}
 		}
 		graph.push_back(graphCol);
 	}
 
+	int jGraph = 0;
 	
 	for (int i = 0; i < num_cell_x; i++) {
+		jGraph = 0;
 		for (int j = 0; j < num_cell_y; j++) {
 			if (terrain[i][j] != 0) {
+
 				if (terrain[(i + 1) % num_cell_x][j] == 1) {
-					graph[i][j].conexiones.push_back(&graph[(i + 1) % num_cell_x][j]);
-					graph[(i + 1) % num_cell_x][j].conexiones.push_back(&graph[i][j]);
+					int wallsNextCollumn = wallsonCollumn((i + 1)%num_cell_x, j);
+					graph[i][jGraph].conexiones.push_back(&graph[(i + 1) % num_cell_x][j-wallsNextCollumn]);
+					graph[(i + 1) % num_cell_x][j - wallsNextCollumn].conexiones.push_back(&graph[i][jGraph]);
 				}
+
 				if (terrain[i][(j + 1) % num_cell_y] == 1) {
-					graph[i][j].conexiones.push_back(&graph[i][(j + 1) % num_cell_y]);
-					graph[i][(j + 1) % num_cell_y].conexiones.push_back(&graph[i][j]);
+					graph[i][jGraph].conexiones.push_back(&graph[i][(jGraph + 1) % graph[i].size()]);
+					graph[i][(jGraph + 1) %  graph[i].size()].conexiones.push_back(&graph[i][jGraph]);
 				}
+				jGraph++;
 			}
 		}
 	}

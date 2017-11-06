@@ -24,6 +24,8 @@ public:
 private:
 	//graph creation
 	std::vector<std::vector<Node>> graph;
+	int wallsOnCollumn(int);
+	int wallsonCollumn(int, int);
 	int v, h;
 	int v1, h1, numDelNodes;
 	void createGraphPorPasos();
