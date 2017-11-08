@@ -5,5 +5,5 @@ struct Node {
 	Vector2D position;
 	float pes;
 	std::vector<Node*>conexiones;
-	Node* previousNode;
+	Vector2D previousNode;
 };
