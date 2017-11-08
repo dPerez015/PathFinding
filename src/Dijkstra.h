@@ -21,13 +21,11 @@ struct dijkstra {
 	}
 
 	static std::vector<Vector2D> applyDijkstra(Node* startNode, Vector2D endPos) {
-		std::multimap<int, Node*> frontier;
-		std::multimap<int, Node*>::iterator it;
+		std::multimap<float, Node*> frontier;
+		std::multimap<float, Node*>::iterator it;
 		std::vector<Vector2D> path;
-		std::priority_queue<Node*> cost;
 		startNode->previousNode = nullptr;
-		frontier.insert(startNode->previousNode, startNode);
-		cost.top()->pes = 0.0;
+		frontier.emplace(0.0f, startNode->previousNode);
 		bool notFound = true;
 		bool notInCostSoFar = false;
 		std::pair <std::multimap<int, Node*>::iterator, std::multimap<int, Node*>::iterator> range;
@@ -35,18 +33,14 @@ struct dijkstra {
 			it = frontier.begin();
 			for (int i = 0; i < it->second->conexiones.size(); i++) {
 				if (it->second->conexiones[i]->position == endPos) {
-					notFound = false;
 					fillPath(path, it->second->conexiones[i]);
+					notFound = false;
 				}
 				else {
-					cost.emplace(it->second->conexiones[i]->pes);
-					//range = frontier.equal_range();
-					if (notInCostSoFar && cost.top()->pes < it->second->conexiones[i]->pes) {
-						it->second->conexiones[i]->pes = cost.top()->pes;
-						cost.emplace(it->second->conexiones[i]->pes);
-						frontier.insert(it->second->conexiones[i], cost.top());
-					}
-				}
+
+				}//afegir key utilitzant pesis al multimap
+
+
 			}
 			it = frontier.erase(it);
 		}
