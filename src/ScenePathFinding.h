@@ -6,6 +6,7 @@
 #include "Path.h"
 #include "list"
 #include "Node.h"
+#include "Dijkstra.h"
 #include "GreedyFirstSearch.h"
 #include "utils.h"
 
