@@ -33,6 +33,9 @@ private:
 	//debugGraph
 	void drawGraph();
 
+	//debug busqueda
+	void drawGraphConexions();
+
 	std::vector<Agent*> agents;
 	Vector2D coinPosition;
 	Vector2D currentTarget;

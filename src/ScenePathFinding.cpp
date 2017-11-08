@@ -39,6 +39,8 @@ ScenePathFinding::ScenePathFinding()
 	currentTarget = Vector2D(0, 0);
 	currentTargetIndex = -1;
 
+	GFS::initGFS(num_cell_x, num_cell_y);
+
 }
 
 int ScenePathFinding::wallsOnCollumn(int column) {
@@ -71,6 +73,7 @@ void ScenePathFinding::createGraph() {
 				Node node;
 				node.position = cell2pix(Vector2D(i, j));
 				node.pes = 1;
+				node.previousNode=nullptr;
 				graphCol.push_back(node);
 			}
 		}
@@ -198,6 +201,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 			draw_grid = !draw_grid;
 		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
 			//deleteNodesPorPaso();
+			GFS::SearchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
 		break;
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
@@ -260,6 +264,15 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		agents[0]->update(Vector2D(0,0), dtime, event);
 	}
 }
+void ScenePathFinding::drawGraphConexions(){
+	for (int i = 0; i < graph.size(); i++) {
+		for (int j = 0; j < graph[i].size(); j++) {
+			if(graph[i][j].previousNode!=nullptr)
+				SDL_RenderDrawLine(TheApp::Instance()->getRenderer(),graph[i][j].position.x, graph[i][j].position.y, graph[i][j].previousNode->position.x, graph[i][j].previousNode->position.y);
+		}
+
+	}
+}
 
 void ScenePathFinding::draw()
 {
@@ -271,15 +284,18 @@ void ScenePathFinding::draw()
 	{
 		
 		SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
-		drawGraph();
-		/*for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
+		
+		//drawGraph();
+		GFS::draw();
+		drawGraphConexions();
+		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
 		{
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), i, 0, i, SRC_HEIGHT);
 		}
 		for (int j = 0; j < SRC_HEIGHT; j = j += CELL_SIZE)
 		{
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), 0, j, SRC_WIDTH, j);
-		}*/
+		}
 	}
 
 	for (int i = 0; i < (int)path.points.size(); i++)

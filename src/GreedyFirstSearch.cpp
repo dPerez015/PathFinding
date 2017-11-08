@@ -28,16 +28,16 @@
 	 it = frontera.begin();
 	 if (it != frontera.end()){
 		 draw_circle(TheApp::Instance()->getRenderer(), it->second->position.x, it->second->position.y, TheApp::Instance()->getGridCellSize().x / 2, 0, 255, 0, 255);
-		 SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), it->second->position.x, it->second->position.y, it->second->previousNode->position.x, it->second->previousNode->position.y);
+		 //SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), it->second->position.x, it->second->position.y, it->second->previousNode->position.x, it->second->previousNode->position.y);
 		 it++;
  }
 	while (it != frontera.end()) {
 		draw_circle(TheApp::Instance()->getRenderer(), it->second->position.x, it->second->position.y, TheApp::Instance()->getGridCellSize().x / 2, 255, 255, 0, 255);
-		SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), it->second->position.x, it->second->position.y, it->second->previousNode->position.x, it->second->previousNode->position.y);
+		//SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), it->second->position.x, it->second->position.y, it->second->previousNode->position.x, it->second->previousNode->position.y);
 		it++;
 	}
 	for (int i = 0; i < path.size();i++) {
-		draw_circle(TheApp::Instance()->getRenderer(), path[i].x, path[i].y, TheApp::Instance()->getGridCellSize().x / 2, 0, 255, 0, 255);
+		draw_circle(TheApp::Instance()->getRenderer(), path[i].x, path[i].y, TheApp::Instance()->getGridCellSize().x / 2, 255, 0, 0, 255);
 	}
 
 }
@@ -56,11 +56,12 @@ void GFS::SearchPerTick(Node* startNode, Vector2D endPos) {
 	it = frontera.begin();
 	std::pair <std::multimap<int, Node*>::iterator, std::multimap<int, Node*>::iterator> range;
 	for (int i = 0; i < it->second->conexiones.size(); i++) {
-		//indicamos de donde proviene
-		it->second->conexiones[i]->previousNode = it->second;
+		
 		if (Heuristics::pix2cell(it->second->conexiones[i]->position) == endPos) {
 			notFound = false;
 			//llenar el camino
+			//indicamos de donde proviene
+			it->second->conexiones[i]->previousNode = it->second;
 			fillPath(it->second->conexiones[i]);
 		}
 		else {
@@ -78,6 +79,8 @@ void GFS::SearchPerTick(Node* startNode, Vector2D endPos) {
 					notFoundInFrontier = false;
 			}
 			if (notFoundInFrontier) {
+				//indicamos de donde proviene
+				it->second->conexiones[i]->previousNode = it->second;
 				frontera.insert(std::pair<int, Node*>(temp, it->second->conexiones[i]));
 				activateBool(it->second->conexiones[i]->position);
 			}
@@ -90,11 +93,11 @@ void GFS::fillPath(Node* end) {
 	path.clear();
 	Node* node=end;
 	while (node != nullptr) {
-		path.push_back(end->position);
+		path.push_back(node->position);
 		node = node->previousNode;
 	}
 	Vector2D temp;
-	for (int i = 0; i = path.size() / 2; i++) {
+	for (int i = 0; i <= path.size() / 2; i++) {
 		temp = path[i];
 		path[i] = path[path.size() - 1 - i];
 		path[path.size() - 1 - i] = temp;
