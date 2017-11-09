@@ -28,7 +28,7 @@ struct dijkstra {
 		frontier.emplace(0.0f, startNode->previousNode);
 		bool notFound = true;
 		bool notInCostSoFar = false;
-		std::pair <std::multimap<int, Node*>::iterator, std::multimap<int, Node*>::iterator> range;
+		std::pair <std::multimap<float, Node*>::iterator, std::multimap<float, Node*>::iterator> range;
 		while (!frontier.empty() && notFound) {
 			it = frontier.begin();
 			for (int i = 0; i < it->second->conexiones.size(); i++) {
@@ -37,10 +37,9 @@ struct dijkstra {
 					notFound = false;
 				}
 				else {
-
+					frontier.emplace(it->second->conexiones[i]->pes, it->second->conexiones[i]->position);
+					range = frontier.equal_range(it->second->conexiones[i]->pes, it->second->conexiones[i]->);
 				}//afegir key utilitzant pesis al multimap
-
-
 			}
 			it = frontier.erase(it);
 		}
