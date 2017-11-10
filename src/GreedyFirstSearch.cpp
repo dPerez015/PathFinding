@@ -45,12 +45,18 @@
 void GFS::SearchPerTick(Node* startNode, Vector2D endPos) {
 	int temp;
 	if (frontera.empty()||!notFound) {
-		frontera.empty();
+		frontera.clear();
 		path.clear();
+		for (int i = 0; i < alreadyVisitedNodes.size(); i++) {
+			for (int j = 0; j < alreadyVisitedNodes[i].size(); j++)
+				alreadyVisitedNodes[i][j] = false;
+
+		}
 		startNode->previousNode = nullptr;
 		activateBool(startNode->position);
 		frontera.insert(std::pair<int, Node*>(Heuristics::manhatanDistance(Heuristics::pix2cell(startNode->position), endPos), startNode));
 		notFound = true;
+		
 	}
 
 	it = frontera.begin();
@@ -106,24 +112,32 @@ void GFS::fillPath(Node* end) {
 
 std::vector<Vector2D> GFS::Search(Node* startNode, Vector2D endPos) {
 	frontera.clear();
+	for (int i = 0; i < alreadyVisitedNodes.size(); i++) {
+		for (int j = 0; j < alreadyVisitedNodes[i].size(); j++)
+			alreadyVisitedNodes[i][j] = false;
+
+	}
 	//path.clear();
 	startNode->previousNode = nullptr;
+	activateBool(startNode->position);
 	frontera.insert(std::pair<int, Node*>(Heuristics::manhatanDistance(Heuristics::pix2cell(startNode->position), endPos), startNode));
 	notFound = true;
+	
 	//notFoundInFrontier;
 	int temp;
 	std::pair <std::multimap<int, Node*>::iterator, std::multimap<int, Node*>::iterator> range;
 	while (!frontera.empty() && notFound) {
 		it = frontera.begin();
 		for (int i = 0; i < it->second->conexiones.size(); i++) {
+
 			if (Heuristics::pix2cell(it->second->conexiones[i]->position) == endPos) {
 				notFound = false;
 				//llenar el camino
+				//indicamos de donde proviene
+				it->second->conexiones[i]->previousNode = it->second;
 				fillPath(it->second->conexiones[i]);
 			}
 			else {
-				//indicamos de donde proviene
-				it->second->conexiones[i]->previousNode = it->second;
 				//añadimos el nodo a la frontera si no esta ya
 				temp = Heuristics::manhatanDistance(Heuristics::pix2cell(it->second->conexiones[i]->position), endPos);
 				range = frontera.equal_range(temp);
@@ -133,9 +147,17 @@ std::vector<Vector2D> GFS::Search(Node* startNode, Vector2D endPos) {
 					if (j->second->position == it->second->conexiones[i]->position)
 						notFoundInFrontier = false;
 				}
-				if (notFoundInFrontier)
-					frontera.insert(std::pair<int, Node*>(temp, it->second->conexiones[i]));
+				if (it->second->previousNode != nullptr) {
+					if (checkVisited(it->second->conexiones[i]->position))
 
+						notFoundInFrontier = false;
+				}
+				if (notFoundInFrontier) {
+					//indicamos de donde proviene
+					it->second->conexiones[i]->previousNode = it->second;
+					frontera.insert(std::pair<int, Node*>(temp, it->second->conexiones[i]));
+					activateBool(it->second->conexiones[i]->position);
+				}
 			}
 		}
 		it = frontera.erase(it);
