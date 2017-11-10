@@ -12,6 +12,7 @@ struct Heuristics {
 	static int manhatanDistance(Vector2D init, Vector2D fin) {
 		/*fin = pix2cell(fin);
 		init = pix2cell(init);*/
-		return abs(init.x - fin.x) + abs(init.y - fin.y);
+		//return abs(init.x - fin.x) + abs(init.y - fin.y);
+		return 1;
 	}
 };

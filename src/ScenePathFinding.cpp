@@ -40,6 +40,7 @@ ScenePathFinding::ScenePathFinding()
 	currentTargetIndex = -1;
 
 	GFS::initGFS(num_cell_x, num_cell_y);
+	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 
 }
 
@@ -157,10 +158,8 @@ void ScenePathFinding::createGraphPorPasos() {
 
 }
 
-/*vector2d inx = findInGraph(postion);
-dijkstra(graph[inx.x][inx.y],)*/
 /*
-Funció que retorna els index en el graph d'una posicio determinada
+Funció que retorna el node en el graph d'una posicio determinada
 */
 Node* ScenePathFinding::findInGraph(Vector2D position) {
 	Vector2D predictedPos=pix2cell(position);
@@ -199,6 +198,12 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 	case SDL_KEYDOWN:
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
+		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
+			path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
+			path.points.clear();
+			currentTargetIndex = 0;
+		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
 			//deleteNodesPorPaso();
 			GFS::SearchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
@@ -242,6 +247,8 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 						coinPosition = Vector2D(-1, -1);
 						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition()))<3))
 							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+
+						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 					}
 
 				}
