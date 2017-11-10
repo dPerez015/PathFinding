@@ -1,14 +1,14 @@
 #include "BFS.h"
 
 queue<Node*> BFS::frontier;
-vector<Node*> BFS::visited;
+vector<vector<bool>> BFS::visitedNode;
 vector<Vector2D> BFS::path;
 bool BFS::notFound;
 
 void BFS::search(Node* startNode, Vector2D endPos) {
 	
 	frontier.push(startNode);//------------¬
-	startNode->previousNode = nullptr;//----- tot aixo ficarho a BFSinit() junt amb la neteja de les variables: path.clear() per exemple 
+	startNode->previousNode = nullptr;//----- tot aixo ficarho a BFSinit() junt amb la neteja de les variables: path.clear() per exemple i visitedNode to false
 	visited.push_back(startNode);//--------/
 
 	while (!frontier.empty() && notFound) {
@@ -17,21 +17,28 @@ void BFS::search(Node* startNode, Vector2D endPos) {
 			notFound = false;
 		}
 		else {
-			//expandFrontier(Node actual)
-			frontier.pop();
+			expandFrontier(frontier.front());
+
+			Vector2D aux = Heuristics::pix2cell(frontier.front()->position);
+			visitedNode[aux.x][aux.y] = true; //afegir a visited
+
+			frontier.pop(); //treure el node de la frontera
 		}
 	}
 
-} //funcio principal, si frontier!=0;
+}
 
-
-void expandFrontier(Node* n) {
-	//calcular els nous nodes a afegir a la frontera i en quin ordre
-	//apuntar el previousNode dels nous nodes
-	//add to visited n
+void BFS::expandFrontier(Node* n) {
+	//afegir els veins de n a la frontera
+	for (int i = 0; i < n->conexiones.size(); i++) {
+		if (!isVisited(n->conexiones[i])) {
+			n->conexiones[i]->previousNode = n;
+			frontier.push(n->conexiones[i]);
+		}
+	}
 }; 
 
-void fillPath(Node* end) {
+void BFS::fillPath(Node* end) {
 	//omplir path amb les posicions dels nodes del cami fent previousNode
 	Node* temp = end; //potser no cal, es pot fer amb end
 	while (temp != nullptr) {
@@ -49,3 +56,9 @@ void fillPath(Node* end) {
 		path[path.size() - 1 - i] = temp;
 	}*/
 };
+
+bool BFS::isVisited(Node* n) {
+	Vector2D gridPos = Heuristics::pix2cell(n->position);
+	if (visitedNode[gridPos.x][gridPos.y] == true)  return true;
+	return false;
+}

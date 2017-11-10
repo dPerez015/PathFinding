@@ -4,6 +4,7 @@
 #include "Vector2D.h"
 #include <queue>
 #include "Node.h"
+#include "Heuristics.h"
 
 
 using namespace std;
@@ -13,15 +14,17 @@ class BFS {
 private:
 	
 	static queue<Node*> frontier;
-	static vector<Node*> visited;
+	static vector<vector<bool>> visitedNode;
 	static vector<Vector2D> path;
 	static bool notFound;
+	
 public:
 	
 	//static void BFSinit();
 	static void search(Node*, Vector2D); 
 	static void expandFrontier(Node*); 
 	static void fillPath(Node*);
+	static bool isVisited(Node*);
 	
 
 
