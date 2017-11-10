@@ -1,15 +1,39 @@
 #include "BFS.h"
 
+#define  GRID_LENGTH 40
+#define  GRID_WIDTH 24
+
 queue<Node*> BFS::frontier;
 vector<vector<bool>> BFS::visitedNode;
 vector<Vector2D> BFS::path;
 bool BFS::notFound;
 
+
+void BFS::BFSinit(Node* startNode) {
+	//buidem frontera
+	while (!frontier.empty()) frontier.pop();
+
+	//creem el nou vector de Nodes visitats
+	visitedNode.clear();
+	for (int i = 0; i < GRID_LENGTH; i++) {
+		std::vector<bool> tmp(GRID_WIDTH, false);
+		visitedNode.push_back(tmp);
+	}
+
+	//buidem el path
+	path.clear();
+
+	//encara no sha trobat el cami
+	notFound = true;
+
+	//preparem el primer Node per la frontea
+	frontier.push(startNode);
+	startNode->previousNode = nullptr;
+}
+
 void BFS::search(Node* startNode, Vector2D endPos) {
 	
-	frontier.push(startNode);//------------¬
-	startNode->previousNode = nullptr;//----- tot aixo ficarho a BFSinit() junt amb la neteja de les variables: path.clear() per exemple i visitedNode to false
-	visited.push_back(startNode);//--------/
+	BFSinit(startNode);
 
 	while (!frontier.empty() && notFound) {
 		if (frontier.front()->position == endPos) {
@@ -36,25 +60,6 @@ void BFS::expandFrontier(Node* n) {
 			frontier.push(n->conexiones[i]);
 		}
 	}
-}; 
-
-void BFS::fillPath(Node* end) {
-	//omplir path amb les posicions dels nodes del cami fent previousNode
-	Node* temp = end; //potser no cal, es pot fer amb end
-	while (temp != nullptr) {
-		
-		//path.push_back(temp->position);
-		temp = temp->previousNode;
-		
-	}
-
-	//path.reverse();
-	/*Vector2D temp;
-	for (int i = 0; i = path.size() / 2; i++) {
-		temp = path[i];
-		path[i] = path[path.size() - 1 - i];
-		path[path.size() - 1 - i] = temp;
-	}*/
 };
 
 bool BFS::isVisited(Node* n) {
@@ -62,3 +67,20 @@ bool BFS::isVisited(Node* n) {
 	if (visitedNode[gridPos.x][gridPos.y] == true)  return true;
 	return false;
 }
+
+void BFS::fillPath(Node* end) {
+	//omplir path amb les posicions dels nodes del cami fent previousNode
+	Node* tempNode = end;
+	while (tempNode != nullptr) {
+		path.push_back(tempNode->position);
+		tempNode = tempNode->previousNode;
+	}
+
+	Vector2D tempVec;
+	for (int i = 0; i = path.size() / 2; i++) {
+		tempVec = path[i];
+		path[i] = path[path.size() - 1 - i];
+		path[path.size() - 1 - i] = tempVec;
+	}
+};
+

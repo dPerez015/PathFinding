@@ -11,21 +11,17 @@ using namespace std;
 
 
 class BFS {
-private:
-	
+private:	
 	static queue<Node*> frontier;
 	static vector<vector<bool>> visitedNode;
 	static vector<Vector2D> path;
 	static bool notFound;
 	
 public:
-	
-	//static void BFSinit();
-	static void search(Node*, Vector2D); 
+	static void search(Node*, Vector2D);
+	static void BFSinit(Node*);
 	static void expandFrontier(Node*); 
 	static void fillPath(Node*);
 	static bool isVisited(Node*);
-	
-
 
 };
