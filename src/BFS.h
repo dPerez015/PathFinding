@@ -13,14 +13,14 @@ class BFS {
 private:
 	
 	static queue<Node*> frontier;
-	static vector<Node*> visited; //amb struct Node del david si que es pot fer, sino shan de guardar les connexions (el node anterior)
+	static vector<Node*> visited;
 	static vector<Vector2D> path;
+	static bool notFound;
 public:
 	
-	static void search(Node*, Vector2D); //funcio principal, si frontier!=0;
-	static bool isTarget();//si es target->break
-	static void expandFrontier(Node*); //afageix a la frontera els veins de n
-	static void addToVisited(Node n); //afageix n a visited
+	//static void BFSinit();
+	static void search(Node*, Vector2D); 
+	static void expandFrontier(Node*); 
 	static void fillPath(Node*);
 	
 
