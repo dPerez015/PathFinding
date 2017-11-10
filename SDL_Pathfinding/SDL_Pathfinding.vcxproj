@@ -132,6 +132,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\Agent.cpp" />
+    <ClCompile Include="..\src\BFS.cpp" />
+    <ClCompile Include="..\src\GreedyFirstSearch.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\ScenePathFinding.cpp" />
     <ClCompile Include="..\src\SDL_SimpleApp.cpp" />
