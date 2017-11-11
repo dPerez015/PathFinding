@@ -4,7 +4,8 @@ std::multimap<float, Node*> dijkstra::frontier;
 std::multimap<float, Node*>::iterator dijkstra::it;
 std::vector<Vector2D> dijkstra::path;
 bool dijkstra::notFound;
-bool dijkstra::notInCostSoFar;
+bool dijkstra::inCostSoFar;
+bool dijkstra::isLowerCost;
 
 void dijkstra::draw() {
 	it = frontier.begin();
@@ -23,7 +24,8 @@ void dijkstra::draw() {
 	}
 }
 
-void dijkstra::fillPath(std::vector<Vector2D> path, Node* end) {
+void dijkstra::fillPath(Node* end) {
+	path.clear();
 	while (end != nullptr) {
 		path.push_back(end->position);
 		end = end->previousNode;
@@ -55,31 +57,27 @@ std::vector<Vector2D> dijkstra::applyDijkstra(Node* startNode, Vector2D endPos) 
 	startNode->previousNode = nullptr;
 	frontier.emplace(0.0f, startNode);
 	float temp;//comprovarà que el valor de la frontera sigui més petit que aquest
-	bool notFound = true;
-	bool notInCostSoFar;
+	notFound = true;
 	std::pair <std::multimap<float, Node*>::iterator, std::multimap<float, Node*>::iterator> range;
 	while (!frontier.empty() && notFound) {
 		it = frontier.begin();
 		for (int i = 0; i < it->second->conexiones.size(); i++) {
 			if (it->second->conexiones[i]->position == endPos) {
-				fillPath(path, it->second->conexiones[i]);
 				notFound = false;
+				fillPath(it->second->conexiones[i]);
 			}
 			else {
 				//frontier.insert(std::pair<float,Node*>(it->second->conexiones[i]->pes, it->second->conexiones[i]->position));
 				range = frontier.equal_range(it->second->conexiones[i]->pes);
-				temp = it->first+it->second->conexiones[i]->pes;
-				notInCostSoFar = checkFrontier(it->second->conexiones[i], frontier);
-
-				//for (auto j = range.first; j != range.second; ++j) {
-				//	if (j->second->pes != j->second->conexiones[i]->pes) {
-				//		notInCostSoFar = false;
-				//	}
-				//}
-				//Mirar en una funció si la posició està a la frontera i retornar un bool 
-				if (notInCostSoFar || temp < it->second->conexiones[i + 1]->pes) {
-					//it->first(temp);
-					frontier.insert(std::pair<float, Node*>(it->first + it->second->conexiones[i]->pes, it->second->conexiones[i]));
+				temp = it->first + it->second->conexiones[i]->pes;
+				inCostSoFar = checkFrontier(it->second->conexiones[i], frontier);
+ 
+				if (inCostSoFar == false) {
+					if (temp < it->second->conexiones[i]->pes)
+						isLowerCost = true;
+				}
+				if (isLowerCost == true) {
+					frontier.insert(std::pair<float, Node*>(temp, it->second->conexiones[i]));
 				}
 			}
 		}

@@ -14,11 +14,12 @@ private:
 	static std::multimap<float, Node*>::iterator it;
 	static std::vector<Vector2D> path;
 	static bool notFound;
-	static bool notInCostSoFar;
+	static bool inCostSoFar;
+	static bool isLowerCost;
 
 public:
 
-	static void fillPath(std::vector<Vector2D>, Node*);
+	static void fillPath(Node*);
 	static bool checkFrontier(Node*, std::multimap<float, Node*>);
 	static std::vector<Vector2D> applyDijkstra(Node*,Vector2D);
 	static void draw();
