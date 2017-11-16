@@ -1,4 +1,5 @@
 #include "BFS.h"
+#include <iostream>
 
 #define  GRID_LENGTH 40
 #define  GRID_WIDTH 24
@@ -31,14 +32,16 @@ void BFS::BFSinit(Node* startNode) {
 	startNode->previousNode = nullptr;
 }
 
-void BFS::search(Node* startNode, Vector2D endPos) {
+vector<Vector2D> BFS::search(Node* startNode, Vector2D endPos) {
 	
 	BFSinit(startNode);
-
+	cout << "BFSinit success" << endl;
 	while (!frontier.empty() && notFound) {
-		if (frontier.front()->position == endPos) {
-			fillPath(frontier.front());
+		if (Heuristics::pix2cell(frontier.front()->position)== Heuristics::pix2cell(endPos)) {
+			cout << "La frontera ha trobat la endPosition" << endl;
+			return fillPath(frontier.front());
 			notFound = false;
+			cout << "per aqui no hauria de passar mai" << endl;
 		}
 		else {
 			expandFrontier(frontier.front());
@@ -47,8 +50,11 @@ void BFS::search(Node* startNode, Vector2D endPos) {
 			visitedNode[aux.x][aux.y] = true; //afegir a visited
 
 			frontier.pop(); //treure el node de la frontera
+			cout << "encara no ha trobat la posicio final: " << aux.x << " " << aux.y << endl;
 		}
 	}
+	cout << "per aqui tampoc" << endl;
+	return path;
 
 }
 
@@ -64,11 +70,10 @@ void BFS::expandFrontier(Node* n) {
 
 bool BFS::isVisited(Node* n) {
 	Vector2D gridPos = Heuristics::pix2cell(n->position);
-	if (visitedNode[gridPos.x][gridPos.y] == true)  return true;
-	return false;
+	return visitedNode[gridPos.x][gridPos.y];
 }
 
-void BFS::fillPath(Node* end) {
+vector<Vector2D> BFS::fillPath(Node* end) {
 	//omplir path amb les posicions dels nodes del cami fent previousNode
 	Node* tempNode = end;
 	while (tempNode != nullptr) {
@@ -82,5 +87,6 @@ void BFS::fillPath(Node* end) {
 		path[i] = path[path.size() - 1 - i];
 		path[path.size() - 1 - i] = tempVec;
 	}
+	return path;
 };
 
