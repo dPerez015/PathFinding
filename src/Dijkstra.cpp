@@ -5,8 +5,6 @@ std::multimap<float, Node*>::iterator dijkstra::it;
 std::vector<Vector2D> dijkstra::path;
 std::vector<std::vector<bool>> dijkstra::visitedNodes;
 bool dijkstra::notFound;
-bool dijkstra::inCostSoFar;
-bool dijkstra::isLowerCost;
 
 void dijkstra::initDijkstra(int x, int y) {
 	for (int i = 0; i < x; i++) {

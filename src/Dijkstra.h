@@ -17,8 +17,6 @@ private:
 	static void checkCost(Node*,Node*, float);
 	static void activateBool(Vector2D);
 	static bool notFound;
-	static bool inCostSoFar;
-	static bool isLowerCost;
 
 public:
 
