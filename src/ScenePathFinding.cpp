@@ -40,6 +40,7 @@ ScenePathFinding::ScenePathFinding()
 	currentTargetIndex = -1;
 
 	GFS::initGFS(num_cell_x, num_cell_y);
+	dijkstra::initDijkstra(num_cell_x, num_cell_y);
 	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 
 }
@@ -199,7 +200,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
 		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
-			path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+			path.points = dijkstra::applyDijkstra(findInGraph(agents[0]->getPosition()), coinPosition);
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
 			currentTargetIndex = 0;
@@ -293,7 +294,8 @@ void ScenePathFinding::draw()
 		SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
 		
 		//drawGraph();
-		GFS::draw();
+		//GFS::draw();
+		dijkstra::draw();
 		drawGraphConexions();
 		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
 		{

@@ -7,20 +7,22 @@
 #include "Node.h"
 #include "utils.h"
 #include "SDL_SimpleApp.h"
-
+#include "Heuristics.h"
 struct dijkstra {
 private:
 	static std::multimap<float, Node*> frontier;
 	static std::multimap<float, Node*>::iterator it;
 	static std::vector<Vector2D> path;
+	static std::vector<std::vector<bool>> visitedNodes;
+	static void checkCost(Node*,Node*, float);
+	static void activateBool(Vector2D);
 	static bool notFound;
-	static bool inCostSoFar;
-	static bool isLowerCost;
 
 public:
 
+	static void initDijkstra(int, int);
 	static void fillPath(Node*);
-	static bool checkFrontier(Node*, std::multimap<float, Node*>);
+	static bool checkFrontier(Vector2D);
 	static std::vector<Vector2D> applyDijkstra(Node*,Vector2D);
 	static void draw();
 };
