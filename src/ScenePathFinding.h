@@ -9,7 +9,7 @@
 #include "Dijkstra.h"
 #include "GreedyFirstSearch.h"
 #include "utils.h"
-
+#include "BFS.h"
 class ScenePathFinding :
 	public Scene
 {

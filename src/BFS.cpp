@@ -29,31 +29,34 @@ void BFS::BFSinit(Node* startNode) {
 
 	//preparem el primer Node per la frontea
 	frontier.push(startNode);
+	Vector2D aux = Heuristics::pix2cell(startNode->position);
+	visitedNode[aux.x][aux.y] = true; //afegir a visited
 	startNode->previousNode = nullptr;
 }
+
 
 vector<Vector2D> BFS::search(Node* startNode, Vector2D endPos) {
 	
 	BFSinit(startNode);
-	cout << "BFSinit success" << endl;
+	//cout << "BFSinit success" << endl;
 	while (!frontier.empty() && notFound) {
 		if (Heuristics::pix2cell(frontier.front()->position)== Heuristics::pix2cell(endPos)) {
-			cout << "La frontera ha trobat la endPosition" << endl;
+			//cout << "La frontera ha trobat la endPosition" << endl;
 			return fillPath(frontier.front());
 			notFound = false;
-			cout << "per aqui no hauria de passar mai" << endl;
+			//cout << "per aqui no hauria de passar mai" << endl;
 		}
 		else {
 			expandFrontier(frontier.front());
 
-			Vector2D aux = Heuristics::pix2cell(frontier.front()->position);
-			visitedNode[aux.x][aux.y] = true; //afegir a visited
+			//Vector2D aux = Heuristics::pix2cell(frontier.front()->position);
+			//visitedNode[aux.x][aux.y] = true; //afegir a visited
 
 			frontier.pop(); //treure el node de la frontera
-			cout << "encara no ha trobat la posicio final: " << aux.x << " " << aux.y << endl;
+			//cout << "encara no ha trobat la posicio final: " << aux.x << " " << aux.y << endl;
 		}
 	}
-	cout << "per aqui tampoc" << endl;
+	//cout << "per aqui tampoc" << endl;
 	return path;
 
 }
@@ -64,6 +67,8 @@ void BFS::expandFrontier(Node* n) {
 		if (!isVisited(n->conexiones[i])) {
 			n->conexiones[i]->previousNode = n;
 			frontier.push(n->conexiones[i]);
+			Vector2D aux = Heuristics::pix2cell(n->position);
+			visitedNode[aux.x][aux.y] = true; //afegir a visited
 		}
 	}
 };
