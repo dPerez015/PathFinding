@@ -79,7 +79,7 @@ vector<Vector2D> BFS::search(Node* startNode, Vector2D endPos) {
 	BFSinit(startNode);
 	//cout << "BFSinit success" << endl;
 	while (!frontier.empty() && notFound) {
-		if (Heuristics::pix2cell(frontier.front()->position)== Heuristics::pix2cell(endPos)) {
+		if (Heuristics::pix2cell(frontier.front()->position)==endPos) {
 			//cout << "La frontera ha trobat la endPosition" << endl;
 			return fillPath(frontier.front());
 			notFound = false;
@@ -127,7 +127,7 @@ vector<Vector2D> BFS::fillPath(Node* end) {
 	}
 
 	Vector2D tempVec;
-	for (int i = 0; i = path.size() / 2; i++) {
+	for (int i = 0; i < path.size() / 2; i++) {
 		tempVec = path[i];
 		path[i] = path[path.size() - 1 - i];
 		path[path.size() - 1 - i] = tempVec;

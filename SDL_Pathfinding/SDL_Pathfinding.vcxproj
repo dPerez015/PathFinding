@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\Agent.cpp" />
     <ClCompile Include="..\src\BFS.cpp" />
+    <ClCompile Include="..\src\Dijkstra.cpp" />
     <ClCompile Include="..\src\GreedyFirstSearch.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\ScenePathFinding.cpp" />
