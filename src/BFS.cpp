@@ -7,6 +7,8 @@
 queue<Node*> BFS::frontier;
 vector<vector<bool>> BFS::visitedNode;
 vector<Vector2D> BFS::path;
+iterable_queue<Vector2D> BFS::iterableFrontier;
+
 bool BFS::notFound;
 
 
@@ -29,11 +31,48 @@ void BFS::BFSinit(Node* startNode) {
 
 	//preparem el primer Node per la frontea
 	frontier.push(startNode);
+	iterableFrontier.push(startNode->position);
 	Vector2D aux = Heuristics::pix2cell(startNode->position);
 	visitedNode[aux.x][aux.y] = true; //afegir a visited
 	startNode->previousNode = nullptr;
 }
+void BFS::draw() {
+	auto it = iterableFrontier.begin();
+	if (!iterableFrontier.empty()) {
+		draw_circle(TheApp::Instance()->getRenderer(), it->x, it->y, CELL_SIZE / 2, 255, 255, 0, 255);
+		for (it = iterableFrontier.begin() + 1; it != iterableFrontier.end(); ++it) {
+			draw_circle(TheApp::Instance()->getRenderer(), it->x, it->y, CELL_SIZE / 2, 255, 0, 0, 255);
+		}
+	}
+	/*for (int i = 0; i < visitedNode.size(); i++) {
+		for (int j = 0; j < visitedNode[i].size(); j++) {
+			if(visitedNode[i][j])
+			draw_circle(TheApp::Instance()->getRenderer(), (i*CELL_SIZE)+(CELL_SIZE/2), (j*CELL_SIZE)+(CELL_SIZE / 2), CELL_SIZE / 2, 255, 255, 255, 255);
+		}
+	}*/
+}
 
+void BFS::searchPerTick(Node* startNode, Vector2D endPos) {
+	if (frontier.empty()|| !notFound) {
+		BFSinit(startNode);
+	}
+	if (Heuristics::pix2cell(frontier.front()->position) == Heuristics::pix2cell(endPos)) {
+		//cout << "La frontera ha trobat la endPosition" << endl;
+		fillPath(frontier.front());
+		notFound = false;
+		//cout << "per aqui no hauria de passar mai" << endl;
+	}
+	else {
+		expandFrontier(frontier.front());
+
+		//Vector2D aux = Heuristics::pix2cell(frontier.front()->position);
+		//visitedNode[aux.x][aux.y] = true; //afegir a visited
+
+		frontier.pop(); //treure el node de la frontera
+		iterableFrontier.pop();			//cout << "encara no ha trobat la posicio final: " << aux.x << " " << aux.y << endl;
+	}
+
+}
 
 vector<Vector2D> BFS::search(Node* startNode, Vector2D endPos) {
 	
@@ -67,7 +106,8 @@ void BFS::expandFrontier(Node* n) {
 		if (!isVisited(n->conexiones[i])) {
 			n->conexiones[i]->previousNode = n;
 			frontier.push(n->conexiones[i]);
-			Vector2D aux = Heuristics::pix2cell(n->position);
+			iterableFrontier.push(n->conexiones[i]->position);
+			Vector2D aux = Heuristics::pix2cell(n->conexiones[i]->position);
 			visitedNode[aux.x][aux.y] = true; //afegir a visited
 		}
 	}
