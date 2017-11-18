@@ -207,7 +207,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
 			//deleteNodesPorPaso();
-			GFS::SearchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
+			BFS::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
 		break;
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
@@ -295,7 +295,8 @@ void ScenePathFinding::draw()
 		
 		//drawGraph();
 		//GFS::draw();
-		dijkstra::draw();
+		//dijkstra::draw();
+		BFS::draw();
 		drawGraphConexions();
 		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
 		{
