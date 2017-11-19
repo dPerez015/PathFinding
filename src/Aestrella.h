@@ -7,6 +7,9 @@
 #include "utils.h"
 #include "SDL_SimpleApp.h"
 #include "Heuristics.h"
+#include "ScenePathFinding.h"
+#include <time.h>
+class ScenePathFinding;
 
 struct AstarCost {
 	float acumulatedCost, heuristics;
@@ -34,6 +37,6 @@ public:
 	static void init(int, int);
 	static void fillPath(Node*);
 	static bool checkFrontier(Vector2D);
-	static std::vector<Vector2D> search(Node*,Vector2D);
+	static std::vector<Vector2D> search(ScenePathFinding*,Node*,Vector2D);
 	static void draw();
 };
