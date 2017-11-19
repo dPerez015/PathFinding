@@ -200,7 +200,8 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
 		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
-			path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
+			//path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
+			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
 			currentTargetIndex = 0;

@@ -10,6 +10,8 @@
 #include "GreedyFirstSearch.h"
 #include "utils.h"
 #include "BFS.h"
+#include "Aestrella.h"
+
 class ScenePathFinding :
 	public Scene
 {

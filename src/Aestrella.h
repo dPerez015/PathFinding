@@ -17,14 +17,12 @@ struct AstarCost {
 		heuristics = 0;
 	}
 };
-bool operator <(const AstarCost &l, const AstarCost &r) {
-	return (l.acumulatedCost + l.heuristics) < (r.acumulatedCost + r.heuristics);
-}
+
 
 struct Aestrella {
 private:
-	static std::multimap<float, Node*> frontier;
-	static std::multimap<float, Node*>::iterator it;
+	static std::multimap<AstarCost, Node*> frontier;
+	static std::multimap<AstarCost, Node*>::iterator it;
 	static std::vector<Vector2D> path;
 	static std::vector<std::vector<bool>> visitedNodes;
 	static void checkCost(Node*,Node*, AstarCost);

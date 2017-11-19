@@ -1,10 +1,21 @@
 #include "Aestrella.h"
 
-std::multimap<float, Node*> Aestrella::frontier;
-std::multimap<float, Node*>::iterator Aestrella::it;
+std::multimap<AstarCost, Node*> Aestrella::frontier;
+std::multimap<AstarCost, Node*>::iterator Aestrella::it;
 std::vector<Vector2D> Aestrella::path;
 std::vector<std::vector<bool>> Aestrella::visitedNodes;
 bool Aestrella::notFound;
+
+
+bool operator <(const AstarCost & l, const AstarCost & r) {
+	return (l.acumulatedCost + l.heuristics) < (r.acumulatedCost + r.heuristics);
+}
+bool operator !=(const AstarCost& l, const AstarCost& r) {
+	if (l.acumulatedCost == r.acumulatedCost && l.heuristics == r.heuristics) {
+		return false;
+	}
+	return true;
+}
 
 void Aestrella::init(int x, int y) {
 	for (int i = 0; i < x; i++) {
@@ -52,9 +63,10 @@ bool Aestrella::checkFrontier( Vector2D tmp) {
 	return visitedNodes[tmp.x][tmp.y];
 }
 void Aestrella::checkCost(Node* node, Node* previusNode, AstarCost tmp) {
+
 	for (std::multimap<AstarCost, Node*>::iterator it = frontier.begin(); it != frontier.end(); it++) {
 		if (it->second->position == node->position) {
-			if (it->first.acumulatedCost > tmp.acumulatedCost) {
+			if (it->first.acumulatedCost < tmp.acumulatedCost) {
 				
 				it = frontier.erase(it);
 				node->previousNode = previusNode;
@@ -83,7 +95,7 @@ std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 	frontier.emplace(AstarCost(0,0), startNode);
 	AstarCost temp;//comprovarà que el valor de la frontera sigui més petit que aquest
 	notFound = true;
-	std::pair <std::multimap<float, Node*>::iterator, std::multimap<float, Node*>::iterator> range;
+	
 	while (!frontier.empty() && notFound) {
 		it = frontier.begin();
 		for (int i = 0; i < it->second->conexiones.size(); i++) {
@@ -95,7 +107,7 @@ std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 			else {
 				//frontier.insert(std::pair<float,Node*>(it->second->conexiones[i]->pes, it->second->conexiones[i]->position));
 				//range = frontier.equal_range(it->second->conexiones[i]->pes);
-				temp.acumulatedCost = it->first + it->second->conexiones[i]->pes;
+				temp.acumulatedCost = it->first.acumulatedCost + it->second->conexiones[i]->pes;
 				temp.heuristics = Heuristics::manhatanDistance(Heuristics::pix2cell(it->second->conexiones[i]->position), endPos);
 				
 				if (checkFrontier(it->second->conexiones[i]->position)) {
@@ -104,7 +116,7 @@ std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 				else {
 					activateBool(it->second->conexiones[i]->position);
 					it->second->conexiones[i]->previousNode = it->second;
-					frontier.insert(std::pair<float, Node*>(temp, it->second->conexiones[i]));
+					frontier.insert(std::pair<AstarCost, Node*>(temp, it->second->conexiones[i]));
 				}
 			}
 		}
