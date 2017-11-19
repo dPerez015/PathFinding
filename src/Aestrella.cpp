@@ -82,7 +82,10 @@ void Aestrella::activateBool(Vector2D pos) {
 	visitedNodes[pos.x][pos.y]=true;
 }
 
-std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
+std::vector<Vector2D> Aestrella::search(ScenePathFinding* scene,Node* startNode, Vector2D endPos) {
+	scene->numNodesEvaluated = 0;
+	scene->numNodesVisited = 0;
+	clock_t t = clock();
 	frontier.clear();
 	path.clear();
 	for (int i = 0; i < visitedNodes.size(); i++) {
@@ -98,7 +101,9 @@ std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 	
 	while (!frontier.empty() && notFound) {
 		it = frontier.begin();
+		scene->numNodesEvaluated++;
 		for (int i = 0; i < it->second->conexiones.size(); i++) {
+			scene->numNodesVisited++;
 			if (Heuristics::pix2cell(it->second->conexiones[i]->position) == endPos) {
 				notFound = false;
 				it->second->conexiones[i]->previousNode = it->second;
@@ -122,6 +127,8 @@ std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 		}
 		it = frontier.erase(it);
 	}
+	t = clock() - t;
 
+	scene->time = ((float)t) / CLOCKS_PER_SEC;
 	return path;
 }
