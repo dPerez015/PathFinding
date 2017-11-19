@@ -7,6 +7,9 @@
 #include "utils.h"
 #include "SDL_SimpleApp.h"
 #include "Heuristics.h"
+#include <time.h>
+#include "SceneDebugPF.h"
+class SceneDebugPF;
 
 struct AstarCost {
 	float acumulatedCost, heuristics;
@@ -26,6 +29,7 @@ private:
 	static std::vector<Vector2D> path;
 	static std::vector<std::vector<bool>> visitedNodes;
 	static void checkCost(Node*,Node*, AstarCost);
+	static void checkCost(Node*, Node*, AstarCost, int&);
 	static void activateBool(Vector2D);
 	static bool notFound;
 
@@ -33,7 +37,9 @@ public:
 
 	static void init(int, int);
 	static void fillPath(Node*);
+	static void fillPath(Node*,int&);
 	static bool checkFrontier(Vector2D);
 	static std::vector<Vector2D> search(Node*,Vector2D);
+	static std::vector<Vector2D> debugSearch(SceneDebugPF*,Node*, Vector2D);
 	static void draw();
 };
