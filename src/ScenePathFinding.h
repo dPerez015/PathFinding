@@ -12,11 +12,9 @@
 #include "BFS.h"
 #include "Aestrella.h"
 
-
 class ScenePathFinding :
 	public Scene
 {
-	friend class Aestrella;
 public:
 	ScenePathFinding();
 	~ScenePathFinding();
@@ -39,11 +37,6 @@ private:
 
 	//debug busqueda
 	void drawGraphConexions();
-
-	//debug Optimizacion
-	float time;
-	int numNodesEvaluated;
-	int numNodesVisited;
 
 	std::vector<Agent*> agents;
 	Vector2D coinPosition;
