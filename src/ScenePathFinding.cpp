@@ -41,6 +41,7 @@ ScenePathFinding::ScenePathFinding()
 
 	GFS::initGFS(num_cell_x, num_cell_y);
 	dijkstra::initDijkstra(num_cell_x, num_cell_y);
+	Aestrella::init(num_cell_x, num_cell_y);
 	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 
 }
@@ -202,6 +203,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
 			//path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
 			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
+			//path.points = dijkstra::applyDijkstra(findInGraph(agents[0]->getPosition()), coinPosition);
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
 			currentTargetIndex = 0;
