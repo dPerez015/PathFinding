@@ -100,10 +100,52 @@ vector<Vector2D> BFS::search(Node* startNode, Vector2D endPos) {
 
 }
 
+vector<Vector2D> BFS::debugSearch(SceneDebugPF* scene,Node* startNode, Vector2D endPos) {
+	scene->numNodesAddedToF = 0;
+	scene->numNodesEvaluated = 0;
+	scene->numNodesVisited = 0;
+	scene->numPathNodes = 0;
+	clock_t t = clock();
+
+	BFSinit(startNode);
+
+	while (!frontier.empty() && notFound) {
+		if (Heuristics::pix2cell(frontier.front()->position) == endPos) {
+			return fillPath(frontier.front(),scene->numPathNodes);
+			notFound = false;
+		}
+		else {
+			expandFrontier(frontier.front(),scene->numNodesVisited,scene->numNodesAddedToF);
+
+			frontier.pop(); //treure el node de la frontera
+		}
+	}
+
+	t = clock() - t;
+	scene->timeOfSearch = t/CLOCKS_PER_SEC;
+	return path;
+
+}
+
 void BFS::expandFrontier(Node* n) {
 	//afegir els veins de n a la frontera
 	for (int i = 0; i < n->conexiones.size(); i++) {
 		if (!isVisited(n->conexiones[i])) {
+			n->conexiones[i]->previousNode = n;
+			frontier.push(n->conexiones[i]);
+			iterableFrontier.push(n->conexiones[i]->position);
+			Vector2D aux = Heuristics::pix2cell(n->conexiones[i]->position);
+			visitedNode[aux.x][aux.y] = true; //afegir a visited
+		}
+	}
+};
+
+void BFS::expandFrontier(Node* n, int& numNodesVisited, int& numNodesAdded) {
+	//afegir els veins de n a la frontera
+	for (int i = 0; i < n->conexiones.size(); i++) {
+		numNodesVisited++;
+		if (!isVisited(n->conexiones[i])) {
+			numNodesAdded++;
 			n->conexiones[i]->previousNode = n;
 			frontier.push(n->conexiones[i]);
 			iterableFrontier.push(n->conexiones[i]->position);
@@ -135,3 +177,20 @@ vector<Vector2D> BFS::fillPath(Node* end) {
 	return path;
 };
 
+vector<Vector2D> BFS::fillPath(Node* end, int& numNodes) {
+	//omplir path amb les posicions dels nodes del cami fent previousNode
+	Node* tempNode = end;
+	while (tempNode != nullptr) {
+		path.push_back(tempNode->position);
+		tempNode = tempNode->previousNode;
+		numNodes++;
+	}
+
+	Vector2D tempVec;
+	for (int i = 0; i < path.size() / 2; i++) {
+		tempVec = path[i];
+		path[i] = path[path.size() - 1 - i];
+		path[path.size() - 1 - i] = tempVec;
+	}
+	return path;
+};

@@ -38,6 +38,8 @@ SceneDebugPF::SceneDebugPF()
 	GFS::initGFS(num_cell_x, num_cell_y);
 	dijkstra::initDijkstra(num_cell_x, num_cell_y);
 	Aestrella::init(num_cell_x,num_cell_y);
+
+	cout << "Pulse enter para empezar a generar datos:\n";
 	
 
 }
@@ -142,6 +144,21 @@ SceneDebugPF::~SceneDebugPF()
 	}
 }
 
+void SceneDebugPF::generateData() {
+	int numOfIterations;
+	cout << "Introduzca numero de repeticiones a realizar";
+	cin >> numOfIterations;
+	
+	Vector2D startPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+	Vector2D endPos;
+
+	for (int i = 0; i < numOfIterations; i++) {
+		
+
+	}
+
+}
+
 void SceneDebugPF::update(float dtime, SDL_Event *event)
 {
 	/* Keyboard & Mouse events */
@@ -151,7 +168,8 @@ void SceneDebugPF::update(float dtime, SDL_Event *event)
 			draw_grid = !draw_grid;
 		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
 			//path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			path.points = Aestrella::debugSearch(this,findInGraph(agents[0]->getPosition()), coinPosition);
+			//path.points = Aestrella::debugSearch(this,findInGraph(agents[0]->getPosition()), coinPosition);
+			generateData();
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
 			currentTargetIndex = 0;
@@ -178,50 +196,8 @@ void SceneDebugPF::update(float dtime, SDL_Event *event)
 	default:
 		break;
 	}
-	if ((currentTargetIndex == -1) && (path.points.size()>0))
-		currentTargetIndex = 0;
 
-	if (currentTargetIndex >= 0)
-	{	
-		float dist = Vector2D::Distance(agents[0]->getPosition(), path.points[currentTargetIndex]);
-		if (dist < path.ARRIVAL_DISTANCE)
-		{
-			if (currentTargetIndex == path.points.size() - 1)
-			{
-				if (dist < 3)
-				{
-					path.points.clear();
-					currentTargetIndex = -1;
-					agents[0]->setVelocity(Vector2D(0,0));
-					// if we have arrived to the coin, replace it ina random cell!
-					if (pix2cell(agents[0]->getPosition()) == coinPosition)
-					{
-						coinPosition = Vector2D(-1, -1);
-						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition()))<3))
-							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 
-						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
-					}
-
-				}
-				else
-				{
-					Vector2D steering_force = agents[0]->Behavior()->Arrive(agents[0], currentTarget, path.ARRIVAL_DISTANCE, dtime);
-					agents[0]->update(steering_force, dtime, event);
-				}
-				return;
-			}
-			currentTargetIndex++;
-		}
-
-		currentTarget = path.points[currentTargetIndex];
-		Vector2D steering_force = agents[0]->Behavior()->Seek(agents[0], currentTarget, dtime);
-		agents[0]->update(steering_force, dtime, event);
-	} 
-	else
-	{
-		agents[0]->update(Vector2D(0,0), dtime, event);
-	}
 }
 void SceneDebugPF::drawGraphConexions(){
 	for (int i = 0; i < graph.size(); i++) {
@@ -273,7 +249,7 @@ void SceneDebugPF::draw()
 
 const char* SceneDebugPF::getTitle()
 {
-	return "SDL Steering Behaviors :: PathFinding1 Demo";
+	return "SDL Steering Behaviors :: Debug-> generate data";
 }
 
 void SceneDebugPF::drawMaze()

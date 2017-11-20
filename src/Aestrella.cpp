@@ -159,6 +159,7 @@ std::vector<Vector2D> Aestrella::debugSearch(SceneDebugPF* scene,Node* startNode
 	scene->numNodesEvaluated = 0;
 	scene->numNodesVisited = 0;
 	scene->numNodesAddedToF = 0;
+	scene->numPathNodes = 0;
 	clock_t t = clock();
 
 	frontier.clear();
@@ -204,6 +205,6 @@ std::vector<Vector2D> Aestrella::debugSearch(SceneDebugPF* scene,Node* startNode
 		it = frontier.erase(it);
 	}
 	t = clock() - t;
-	scene->timeOfSearch = t;
+	scene->timeOfSearch = t/CLOCKS_PER_SEC;
 	return path;
 }

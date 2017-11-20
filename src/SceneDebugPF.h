@@ -17,6 +17,9 @@ class SceneDebugPF :
 	public Scene
 {
 	friend class Aestrella;
+	friend class BFS;
+	friend class GFS;
+	friend class dijkstra;
 public:
 	SceneDebugPF();
 	~SceneDebugPF();
@@ -43,6 +46,7 @@ private:
 	int numNodesVisited;
 	int numNodesAddedToF;
 	int numPathNodes;
+	void generateData();
 
 	std::vector<Agent*> agents;
 	Vector2D coinPosition;

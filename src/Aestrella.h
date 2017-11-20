@@ -9,6 +9,7 @@
 #include "Heuristics.h"
 #include <time.h>
 #include "SceneDebugPF.h"
+
 class SceneDebugPF;
 
 struct AstarCost {
