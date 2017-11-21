@@ -33,6 +33,7 @@ private:
 	static void checkCost(Node*, Node*, AstarCost, int&);
 	static void activateBool(Vector2D);
 	static bool notFound;
+	static float pathCost; //util per a la cerca de grup
 
 public:
 
@@ -43,4 +44,5 @@ public:
 	static std::vector<Vector2D> search(Node*,Vector2D);
 	static std::vector<Vector2D> debugSearch(SceneDebugPF*,Node*, Vector2D);
 	static void draw();
+	static float getPathCost(); //util per a la cerca de grup
 };

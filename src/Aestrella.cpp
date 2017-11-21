@@ -5,6 +5,7 @@ std::multimap<AstarCost, Node*>::iterator Aestrella::it;
 std::vector<Vector2D> Aestrella::path;
 std::vector<std::vector<bool>> Aestrella::visitedNodes;
 bool Aestrella::notFound;
+float Aestrella::pathCost;
 
 
 bool operator <(const AstarCost & l, const AstarCost & r) {
@@ -114,6 +115,7 @@ void Aestrella::activateBool(Vector2D pos) {
 std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 	frontier.clear();
 	path.clear();
+	pathCost = 0;
 	for (int i = 0; i < visitedNodes.size(); i++) {
 		for (int j = 0; j < visitedNodes[i].size(); j++) {
 			visitedNodes[i][j] = false;
@@ -129,6 +131,7 @@ std::vector<Vector2D> Aestrella::search(Node* startNode, Vector2D endPos) {
 		it = frontier.begin();
 		for (int i = 0; i < it->second->conexiones.size(); i++) {
 			if (Heuristics::pix2cell(it->second->conexiones[i]->position) == endPos) {
+				pathCost = it->first.acumulatedCost + it->second->conexiones[i]->pes;
 				notFound = false;
 				it->second->conexiones[i]->previousNode = it->second;
 				fillPath(it->second->conexiones[i]);
@@ -208,3 +211,5 @@ std::vector<Vector2D> Aestrella::debugSearch(SceneDebugPF* scene,Node* startNode
 	scene->timeOfSearch = t/CLOCKS_PER_SEC;
 	return path;
 }
+
+float Aestrella::getPathCost() { return pathCost; }
