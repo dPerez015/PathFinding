@@ -41,6 +41,7 @@ SceneGroupPathFinding::SceneGroupPathFinding()
 
 	GFS::initGFS(num_cell_x, num_cell_y);
 	dijkstra::initDijkstra(num_cell_x, num_cell_y);
+	Aestrella::init(num_cell_x, num_cell_y);
 	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 
 }
@@ -199,9 +200,30 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 	case SDL_KEYDOWN:
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
-		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
-			//path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
+		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN) {
+			/*Path auxPath;
+			Path shortestPath;
+			Node* newAgentStartPosition = findInGraph(agents[0]->getPosition());
+			path.points.clear();
+			while (!goals.empty()) {
+				for (int i = 0; i < goals.size(); i++) {
+					auxPath.points = Aestrella::search(newAgentStartPosition, goals[i]); //en realitat no volem el path, sino el cost acumulat al Node desti (falta fe-ho)
+					if (i == 0) {
+						closestGoalCost = Aestrella::cost; // el cost tret del primer search
+						closestGoalIndex = 0;
+						shortestPath = auxPath;
+					}
+					else	if (Aestrella::cost < closestGoalCost) {
+						closestGoalCost = Aestrella::cost;
+						closestGoalIndex = i;
+						shortestPath = auxPath;
+					}
+				}
+				newAgentStartPosition = findInGraph(goals[closestGoalIndex]);
+				goals.erase(goals.begin()+closestGoalIndex);
+				path.points.insert(path.points.end(), shortestPath.points.begin(), shortestPath.points.end());
+			} //en teoria ja esta, al final del while esta el path complet que l'agent recorrerà
+		*/}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
 			currentTargetIndex = 0;
