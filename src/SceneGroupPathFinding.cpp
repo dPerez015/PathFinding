@@ -30,10 +30,8 @@ SceneGroupPathFinding::SceneGroupPathFinding()
 		rand_cell = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 	agents[0]->setPosition(cell2pix(rand_cell));
 
-	// set the coin in a random cell (but at least 3 cells far from the agent)
-	coinPosition = Vector2D(-1, -1);
-	while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, rand_cell)<3))
-		coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+	//create random goals
+	createNewCoins(5);
 
 	// PathFollowing next Target
 	currentTarget = Vector2D(0, 0);
@@ -44,6 +42,17 @@ SceneGroupPathFinding::SceneGroupPathFinding()
 	Aestrella::init(num_cell_x, num_cell_y);
 	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 
+}
+
+void SceneGroupPathFinding::createNewCoins(int numberOfGoals) {
+	coins.clear();
+	// set the coin in a random cell (but at least 3 cells far from the agent)
+	for (int i = 0; i < numberOfGoals; ++i) {
+		coinPosition = Vector2D(-1, -1);
+		while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition())) < 3))
+			coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+		coins.push_back(coinPosition);
+	}
 }
 
 int SceneGroupPathFinding::wallsOnCollumn(int column) {
@@ -205,24 +214,25 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 			Path shortestPath;
 			Node* newAgentStartPosition = findInGraph(agents[0]->getPosition());
 			path.points.clear();
+			vector<Vector2D> goals = coins;
 			while (!goals.empty()) {
 				for (int i = 0; i < goals.size(); i++) {
 					auxPath.points = Aestrella::search(newAgentStartPosition, goals[i]); //en realitat no volem el path, sino el cost acumulat al Node desti (falta fe-ho)
 					if (i == 0) {
-						closestGoalCost = Aestrella::getPathCost(); // el cost tret del primer search
-						closestGoalIndex = 0;
+						closestCoinCost = Aestrella::getPathCost(); // el cost tret del primer search
+						closestCoinIndex = 0;
 						shortestPath = auxPath;
 					}
-					else	if (Aestrella::getPathCost() < closestGoalCost) {
-						closestGoalCost = Aestrella::getPathCost();
-						closestGoalIndex = i;
+					else	if (Aestrella::getPathCost() < closestCoinCost) {
+						closestCoinCost = Aestrella::getPathCost();
+						closestCoinIndex = i;
 						shortestPath = auxPath;
 					}
 				}
-				newAgentStartPosition = findInGraph(goals[closestGoalIndex]);
-				goals.erase(goals.begin()+closestGoalIndex);
+				newAgentStartPosition = findInGraph(goals[closestCoinIndex]);
+				goals.erase(goals.begin() + closestCoinIndex);
 				path.points.insert(path.points.end(), shortestPath.points.begin(), shortestPath.points.end());
-			} //en teoria ja esta, al final del while esta el path complet que l'agent recorrerà
+			} //al final del while esta el path complet que l'agent recorrerà
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
@@ -230,8 +240,8 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
 			//deleteNodesPorPaso();
-			BFS::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
-		break;
+			//BFS::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
+			break;
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
 		if (event->button.button == SDL_BUTTON_LEFT)
@@ -250,7 +260,8 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 	default:
 		break;
 	}
-	if ((currentTargetIndex == -1) && (path.points.size()>0))
+
+	if ((currentTargetIndex == -1) && (path.points.size() > 0))
 		currentTargetIndex = 0;
 
 	if (currentTargetIndex >= 0)
@@ -258,6 +269,12 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 		float dist = Vector2D::Distance(agents[0]->getPosition(), path.points[currentTargetIndex]);
 		if (dist < path.ARRIVAL_DISTANCE)
 		{
+			//esborrar coins
+			for (int i = 0; i < coins.size(); ++i){ 
+				if (pix2cell(agents[0]->getPosition()) == coins[i]) {
+					coins.erase(coins.begin() + i);
+				}
+			}
 			if (currentTargetIndex == path.points.size() - 1)
 			{
 				if (dist < 3)
@@ -266,15 +283,10 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 					currentTargetIndex = -1;
 					agents[0]->setVelocity(Vector2D(0, 0));
 					// if we have arrived to the coin, replace it ina random cell!
-					if (pix2cell(agents[0]->getPosition()) == coinPosition)
+					if (pix2cell(agents[0]->getPosition()) == coins[0]) //coins[0] == coinsPosition (la ultima que queda)
 					{
-						coinPosition = Vector2D(-1, -1);
-						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition()))<3))
-							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
-
-						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+						createNewCoins(5);
 					}
-
 				}
 				else
 				{
@@ -365,10 +377,14 @@ void SceneGroupPathFinding::drawMaze()
 
 void SceneGroupPathFinding::drawCoin()
 {
-	Vector2D coin_coords = cell2pix(coinPosition);
+	Vector2D coin_coords;
 	int offset = CELL_SIZE / 2;
-	SDL_Rect dstrect = { (int)coin_coords.x - offset, (int)coin_coords.y - offset, CELL_SIZE, CELL_SIZE };
-	SDL_RenderCopy(TheApp::Instance()->getRenderer(), coin_texture, NULL, &dstrect);
+	for (int i = 0; i < coins.size(); ++i) {
+		coin_coords = cell2pix(coins[i]);
+		SDL_Rect dstrect = { (int)coin_coords.x - offset, (int)coin_coords.y - offset, CELL_SIZE, CELL_SIZE };
+		SDL_RenderCopy(TheApp::Instance()->getRenderer(), coin_texture, NULL, &dstrect);
+	}
+	
 }
 
 void SceneGroupPathFinding::initMaze()
@@ -514,5 +530,11 @@ bool SceneGroupPathFinding::isValidCell(Vector2D cell)
 {
 	if ((cell.x < 0) || (cell.y < 0) || (cell.x >= terrain.size()) || (cell.y >= terrain[0].size()))
 		return false;
-	return !(terrain[(unsigned int)cell.x][(unsigned int)cell.y] == 0);
+	if (terrain[(unsigned int)cell.x][(unsigned int)cell.y] == 0) return false;
+	if (!coins.empty()) {
+		for (int i = 0; i < coins.size(); ++i) {
+			if (cell == coins[i]) return false;
+		}
+	}
+	return true;
 }

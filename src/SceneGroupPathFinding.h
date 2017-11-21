@@ -20,10 +20,11 @@ public:
 	void draw();
 	const char* getTitle();
 private:
-	//Group PathFinding variables
-	vector<Vector2D> goals;
-	int closestGoalIndex;
-	float closestGoalCost;
+	//Group PathFinding variables And function
+	vector<Vector2D> coins;
+	int closestCoinIndex;
+	float closestCoinCost;
+	void createNewCoins(int);
 
 	//graph creation
 	std::vector<std::vector<Node>> graph;
