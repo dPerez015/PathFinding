@@ -210,7 +210,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
 			//deleteNodesPorPaso();
-			BFS::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
+			//Aestrella::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
 		break;
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
@@ -235,21 +235,23 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 
 	if (currentTargetIndex >= 0)
 	{	
+		
 		float dist = Vector2D::Distance(agents[0]->getPosition(), path.points[currentTargetIndex]);
 		if (dist < path.ARRIVAL_DISTANCE)
 		{
+			if (throughTunnel) throughTunnel = false;
 			if (currentTargetIndex == path.points.size() - 1)
 			{
 				if (dist < 3)
 				{
 					path.points.clear();
 					currentTargetIndex = -1;
-					agents[0]->setVelocity(Vector2D(0,0));
+					agents[0]->setVelocity(Vector2D(0, 0));
 					// if we have arrived to the coin, replace it ina random cell!
 					if (pix2cell(agents[0]->getPosition()) == coinPosition)
 					{
 						coinPosition = Vector2D(-1, -1);
-						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition()))<3))
+						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition())) < 3))
 							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 
 						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
@@ -263,10 +265,24 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 				}
 				return;
 			}
+			//tunnel stuff
+			//else -> el target no es l'ultim target del path
+			//si ha de sortir de la dreta
+			else if (pix2cell(path.points[currentTargetIndex]).x == num_cell_x - 1 && pix2cell(path.points[currentTargetIndex + 1]).x == 0) {
+				currentTarget.x += CELL_SIZE;
+				throughTunnel = true;
+			}//si ha de sortir de l'esquerra
+			else if (pix2cell(path.points[currentTargetIndex]).x == 0 && pix2cell(path.points[currentTargetIndex + 1]).x == num_cell_x - 1) {
+				currentTarget.x -= CELL_SIZE;
+				throughTunnel = true;
+			}
 			currentTargetIndex++;
+
 		}
 
-		currentTarget = path.points[currentTargetIndex];
+		if (!throughTunnel) {
+			currentTarget = path.points[currentTargetIndex];
+		}
 		Vector2D steering_force = agents[0]->Behavior()->Seek(agents[0], currentTarget, dtime);
 		agents[0]->update(steering_force, dtime, event);
 	} 
