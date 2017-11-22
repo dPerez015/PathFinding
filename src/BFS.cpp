@@ -15,7 +15,7 @@ bool BFS::notFound;
 void BFS::BFSinit(Node* startNode) {
 	//buidem frontera
 	while (!frontier.empty()) frontier.pop();
-
+	while (!iterableFrontier.empty()) iterableFrontier.pop();
 	//creem el nou vector de Nodes visitats
 	visitedNode.clear();
 	for (int i = 0; i < GRID_LENGTH; i++) {

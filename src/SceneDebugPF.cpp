@@ -181,7 +181,7 @@ void SceneDebugPF::generateData() {
 				if (typeOfDebug == 1)
 					BFS::debugSearch(this, findInGraph(startPos), targetPos);
 				else if (typeOfDebug == 2)
-					dijkstra::applyDijkstra(findInGraph(startPos), targetPos);
+					dijkstra::search(findInGraph(startPos), targetPos);
 				else if (typeOfDebug == 3)
 					GFS::Search(findInGraph(startPos), targetPos);
 				else
