@@ -49,7 +49,7 @@ void SceneGroupPathFinding::createNewCoins(int numberOfGoals) {
 	// set the coin in a random cell (but at least 3 cells far from the agent)
 	for (int i = 0; i < numberOfGoals; ++i) {
 		coinPosition = Vector2D(-1, -1);
-		while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition())) < 3))
+		while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition())) < 3) || isThereCoin(coinPosition))
 			coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 		coins.push_back(coinPosition);
 	}
@@ -229,7 +229,7 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 						shortestPath = auxPath;
 					}
 				}
-				newAgentStartPosition = findInGraph(goals[closestCoinIndex]);
+				newAgentStartPosition = findInGraph(cell2pix(goals[closestCoinIndex]));
 				goals.erase(goals.begin() + closestCoinIndex);
 				path.points.insert(path.points.end(), shortestPath.points.begin(), shortestPath.points.end());
 			} //al final del while esta el path complet que l'agent recorrerà
@@ -269,24 +269,17 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 		float dist = Vector2D::Distance(agents[0]->getPosition(), path.points[currentTargetIndex]);
 		if (dist < path.ARRIVAL_DISTANCE)
 		{
-			//esborrar coins
-			for (int i = 0; i < coins.size(); ++i){ 
-				if (pix2cell(agents[0]->getPosition()) == coins[i]) {
-					coins.erase(coins.begin() + i);
-				}
-			}
+			if (throughTunnel) throughTunnel = false;
+
 			if (currentTargetIndex == path.points.size() - 1)
 			{
 				if (dist < 3)
 				{
+					// if we have arrived to the coin, replace it ina random cell!
+					shouldDeleteCoin(pix2cell(path.points[currentTargetIndex])); //si hi ha una moneda la elimina
 					path.points.clear();
 					currentTargetIndex = -1;
 					agents[0]->setVelocity(Vector2D(0, 0));
-					// if we have arrived to the coin, replace it ina random cell!
-					if (pix2cell(agents[0]->getPosition()) == coins[0]) //coins[0] == coinsPosition (la ultima que queda)
-					{
-						createNewCoins(5);
-					}
 				}
 				else
 				{
@@ -295,10 +288,27 @@ void SceneGroupPathFinding::update(float dtime, SDL_Event *event)
 				}
 				return;
 			}
+			//tunnel stuff
+			//else -> el target no es l'ultim target del path
+			//si ha de sortir de la dreta
+			else if (pix2cell(path.points[currentTargetIndex]).x == num_cell_x - 1 && pix2cell(path.points[currentTargetIndex + 1]).x == 0) {
+				currentTarget.x += CELL_SIZE;
+				throughTunnel = true;
+			}//si ha de sortir de l'esquerra
+			else if (pix2cell(path.points[currentTargetIndex]).x == 0 && pix2cell(path.points[currentTargetIndex + 1]).x == num_cell_x - 1) {
+				currentTarget.x -= CELL_SIZE;
+				throughTunnel = true;
+			}
+			else {		
+				//esborrar coins
+				shouldDeleteCoin(pix2cell(path.points[currentTargetIndex])); //si hi ha moneda la elimina
+			}
 			currentTargetIndex++;
 		}
 
-		currentTarget = path.points[currentTargetIndex];
+		if (!throughTunnel) {
+			currentTarget = path.points[currentTargetIndex];
+		}
 		Vector2D steering_force = agents[0]->Behavior()->Seek(agents[0], currentTarget, dtime);
 		agents[0]->update(steering_force, dtime, event);
 	}
@@ -531,10 +541,29 @@ bool SceneGroupPathFinding::isValidCell(Vector2D cell)
 	if ((cell.x < 0) || (cell.y < 0) || (cell.x >= terrain.size()) || (cell.y >= terrain[0].size()))
 		return false;
 	if (terrain[(unsigned int)cell.x][(unsigned int)cell.y] == 0) return false;
+	return true;
+}
+
+bool SceneGroupPathFinding::isThereCoin(Vector2D cell) {
 	if (!coins.empty()) {
 		for (int i = 0; i < coins.size(); ++i) {
-			if (cell == coins[i]) return false;
+			if (cell == coins[i]) return true;
 		}
 	}
-	return true;
+	return false;
+}
+
+void SceneGroupPathFinding::shouldDeleteCoin(Vector2D cell) {
+	if (isThereCoin(cell)) {
+		if (coins.size() == 1) {
+			createNewCoins(5);
+		}
+		else {
+			for (int i = 0; i < coins.size(); ++i) {
+				if (cell == coins[i]) {
+					coins.erase(coins.begin() + i);
+				}
+			}
+		}
+	}
 }
