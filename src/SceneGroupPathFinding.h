@@ -25,6 +25,8 @@ private:
 	int closestCoinIndex;
 	float closestCoinCost;
 	void createNewCoins(int);
+	bool isThereCoin(Vector2D cell);
+	void shouldDeleteCoin(Vector2D cell);
 
 	//graph creation
 	std::vector<std::vector<Node>> graph;
@@ -32,6 +34,7 @@ private:
 	int wallsonCollumn(int, int);
 	int v, h;
 	int v1, h1, numDelNodes;
+	bool throughTunnel = false;
 	void createGraphPorPasos();
 	void deleteNodesPorPaso();
 	Node* findInGraph(Vector2D);

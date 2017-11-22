@@ -23,6 +23,6 @@ public:
 	static void initDijkstra(int, int);
 	static void fillPath(Node*);
 	static bool checkFrontier(Vector2D);
-	static std::vector<Vector2D> applyDijkstra(Node*,Vector2D);
+	static std::vector<Vector2D> search(Node*,Vector2D);
 	static void draw();
 };

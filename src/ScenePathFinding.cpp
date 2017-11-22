@@ -2,6 +2,11 @@
 
 using namespace std;
 
+bool isBFS;
+bool isDijkstra;
+bool isGFS;
+bool isAestrella;
+
 ScenePathFinding::ScenePathFinding()
 {
 	draw_grid = false;
@@ -200,10 +205,38 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 	case SDL_KEYDOWN:
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
-		else if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
-			//path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
+		else if (event->key.keysym.scancode == SDL_SCANCODE_A) {
+			cout << "BFS Algorism" << endl;
+			path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
+			isBFS = true;
+			isDijkstra = false;
+			isGFS = false;
+			isAestrella = false;
+		}
+		else if (event->key.keysym.scancode == SDL_SCANCODE_S) {
+			cout << "Dijkstra Algorism" << endl;
+			path.points = dijkstra::search(findInGraph(agents[0]->getPosition()), coinPosition);
+			isBFS = false;
+			isDijkstra = true;
+			isGFS = false;
+			isAestrella = false;
+		}
+		else if (event->key.keysym.scancode == SDL_SCANCODE_D) {
+			cout << "GFS Algorism" << endl;
+			path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+			isBFS = false;
+			isDijkstra = false;
+			isGFS = true;
+			isAestrella = false;
+		}
+		else if (event->key.keysym.scancode == SDL_SCANCODE_G) {
+			cout << "Astar Algorism" << endl;
 			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			//path.points = dijkstra::applyDijkstra(findInGraph(agents[0]->getPosition()), coinPosition);
+			isBFS = false;
+			isDijkstra = false;
+			isGFS = false;
+			isAestrella = true;
+		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
 			currentTargetIndex = 0;
@@ -315,7 +348,14 @@ void ScenePathFinding::draw()
 		//drawGraph();
 		//GFS::draw();
 		//dijkstra::draw();
-		BFS::draw();
+		if(isBFS == true)
+			BFS::draw();
+		if (isDijkstra == true)
+			dijkstra::draw();
+		if (isGFS == true)
+			GFS::draw();
+		if (isAestrella == true)
+			Aestrella::draw();
 		drawGraphConexions();
 		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
 		{

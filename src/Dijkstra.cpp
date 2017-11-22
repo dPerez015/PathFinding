@@ -70,7 +70,7 @@ void dijkstra::activateBool(Vector2D pos) {
 	visitedNodes[pos.x][pos.y]=true;
 }
 
-std::vector<Vector2D> dijkstra::applyDijkstra(Node* startNode, Vector2D endPos) {
+std::vector<Vector2D> dijkstra::search(Node* startNode, Vector2D endPos) {
 	frontier.clear();
 	path.clear();
 	for (int i = 0; i < visitedNodes.size(); i++) {
