@@ -11,7 +11,10 @@
 #include "utils.h"
 #include "BFS.h"
 #include "Aestrella.h"
-
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 
 class SceneDebugPF :
 	public Scene

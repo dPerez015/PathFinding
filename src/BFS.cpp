@@ -110,6 +110,7 @@ vector<Vector2D> BFS::debugSearch(SceneDebugPF* scene,Node* startNode, Vector2D 
 	BFSinit(startNode);
 
 	while (!frontier.empty() && notFound) {
+		scene->numNodesEvaluated++;
 		if (Heuristics::pix2cell(frontier.front()->position) == endPos) {
 			return fillPath(frontier.front(),scene->numPathNodes);
 			notFound = false;
@@ -122,6 +123,7 @@ vector<Vector2D> BFS::debugSearch(SceneDebugPF* scene,Node* startNode, Vector2D 
 	}
 
 	t = clock() - t;
+
 	scene->timeOfSearch = t/CLOCKS_PER_SEC;
 	return path;
 

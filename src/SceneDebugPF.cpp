@@ -40,7 +40,6 @@ SceneDebugPF::SceneDebugPF()
 	Aestrella::init(num_cell_x,num_cell_y);
 
 	cout << "Pulse enter para empezar a generar datos:\n";
-	
 
 }
 
@@ -146,15 +145,76 @@ SceneDebugPF::~SceneDebugPF()
 
 void SceneDebugPF::generateData() {
 	int numOfIterations;
-	cout << "Introduzca numero de repeticiones a realizar";
+	int typeOfDebug;
+	cout << "Introduzca numero de repeticiones a realizar\n";
 	cin >> numOfIterations;
-	
-	Vector2D startPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
-	Vector2D endPos;
+	cout << "Introduzca tipo de PathFinding:\n1:BFS	2:Dijkstra	3:Greedy	4:A*\n";
+	cin >> typeOfDebug;
+	if (typeOfDebug > 0 && typeOfDebug < 5) {
+		ofstream file;
 
-	for (int i = 0; i < numOfIterations; i++) {
+
+
+		Vector2D startPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+		while(!isValidCell(startPos))
+			startPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+
+		Vector2D targetPos= Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+		while (!isValidCell(targetPos) || Vector2D::Distance(targetPos, startPos) < 4)
+			targetPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+
 		
 
+		for (int i = 0; i < numOfIterations; i++) {
+			//abrimos el documento
+			if (typeOfDebug == 1)
+				file.open("BFS.txt", ios::out|ios::app);
+			else if (typeOfDebug == 2)
+				file.open("Dikstra.txt", ios::out | ios::app);
+			else if (typeOfDebug == 3)
+				file.open("Greedy.txt", ios::out | ios::app);
+			else
+				file.open("Aestrella.txt", ios::out | ios::app);
+			//hacemos 10 imputs al documento
+			for (int j = 0; j < 10; j++) {
+				//hacemos la busqueda
+				if (typeOfDebug == 1)
+					BFS::debugSearch(this, findInGraph(startPos), targetPos);
+				else if (typeOfDebug == 2)
+					dijkstra::applyDijkstra(findInGraph(startPos), targetPos);
+				else if (typeOfDebug == 3)
+					GFS::Search(findInGraph(startPos), targetPos);
+				else
+					Aestrella::debugSearch(this, findInGraph(startPos), targetPos);
+
+				//creamos la cadena de texto
+				string cadena = "";
+				stringstream timeStream;
+				timeStream << fixed << setprecision(16) << timeOfSearch;
+				cadena += timeStream.str() + "	";
+				cadena += std::to_string(numNodesVisited) + "	";
+				cadena += std::to_string(numNodesAddedToF) + "	";
+				cadena += std::to_string(numNodesEvaluated) + "	";
+				cadena += std::to_string(numPathNodes) + "\n";
+				//metemos los datos al file
+				file << cadena;
+
+				//generamos nueva posicion
+				startPos = targetPos;
+				targetPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+				while (!isValidCell(targetPos) || Vector2D::Distance(targetPos, startPos) < 4)
+					targetPos = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+				cout << "- Busqueda " << i << " finalizada.\n";
+				i++;
+				}
+				file.close();
+				i--;
+			}
+		cout << "Finalizada la creacion de datos\n";
+		
+	}
+	else {
+		cout << "tipo no valido\n";
 	}
 
 }

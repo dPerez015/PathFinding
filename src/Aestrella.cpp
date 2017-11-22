@@ -208,7 +208,7 @@ std::vector<Vector2D> Aestrella::debugSearch(SceneDebugPF* scene,Node* startNode
 		it = frontier.erase(it);
 	}
 	t = clock() - t;
-	scene->timeOfSearch = t/CLOCKS_PER_SEC;
+	scene->timeOfSearch = t;
 	return path;
 }
 
