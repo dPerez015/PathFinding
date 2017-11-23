@@ -176,7 +176,7 @@ void SceneDebugPF::generateData() {
 			else
 				file.open("Aestrella.txt", ios::out | ios::app);
 			//hacemos 10 imputs al documento
-			for (int j = 0; j < 10; j++) {
+			for (int j = 0; j < 10 && i<numOfIterations; j++) {
 				//hacemos la busqueda
 				if (typeOfDebug == 1)
 					BFS::debugSearch(this, findInGraph(startPos), targetPos);
