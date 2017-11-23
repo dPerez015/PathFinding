@@ -5,6 +5,11 @@
 #include <map>
 #include "Heuristics.h"
 #include "utils.h"
+#include "SceneDebugPF.h"
+#include <time.h>
+
+class SceneDebugPF;
+
 struct GFS {	
 private:
 	static std::multimap<int, Node*> frontera;
@@ -21,6 +26,7 @@ public:
 	static void draw();
 	static void SearchPerTick(Node*,Vector2D);
 	static void fillPath(Node*);
+	static void fillPath(Node*, int&);
 	static std::vector<Vector2D>Search(Node*, Vector2D);
-
+	static std::vector<Vector2D>debugSearch(SceneDebugPF*,Node*, Vector2D);
 };

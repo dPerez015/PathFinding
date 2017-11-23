@@ -110,6 +110,22 @@ void GFS::fillPath(Node* end) {
 	}
 }
 
+void GFS::fillPath(Node* end,int& numNodes) {
+	path.clear();
+	Node* node = end;
+	while (node != nullptr) {
+		path.push_back(node->position);
+		node = node->previousNode;
+		numNodes++;
+	}
+	Vector2D temp;
+	for (int i = 0; i <= path.size() / 2; i++) {
+		temp = path[i];
+		path[i] = path[path.size() - 1 - i];
+		path[path.size() - 1 - i] = temp;
+	}
+}
+
 std::vector<Vector2D> GFS::Search(Node* startNode, Vector2D endPos) {
 	frontera.clear();
 	for (int i = 0; i < alreadyVisitedNodes.size(); i++) {
@@ -163,5 +179,72 @@ std::vector<Vector2D> GFS::Search(Node* startNode, Vector2D endPos) {
 		it = frontera.erase(it);
 	}
 
+	return path;
+}
+
+std::vector<Vector2D> GFS::debugSearch(SceneDebugPF* scene,Node* startNode, Vector2D endPos) {
+	scene->numNodesAddedToF = 0;
+	scene->numNodesEvaluated = 0;
+	scene->numNodesVisited = 0;
+	scene->numPathNodes = 0;
+	
+	clock_t t = clock();
+
+	frontera.clear();
+	for (int i = 0; i < alreadyVisitedNodes.size(); i++) {
+		for (int j = 0; j < alreadyVisitedNodes[i].size(); j++)
+			alreadyVisitedNodes[i][j] = false;
+
+	}
+	//path.clear();
+	startNode->previousNode = nullptr;
+	activateBool(startNode->position);
+	frontera.insert(std::pair<int, Node*>(Heuristics::manhatanDistance(Heuristics::pix2cell(startNode->position), endPos), startNode));
+	notFound = true;
+
+	//notFoundInFrontier;
+	int temp;
+	std::pair <std::multimap<int, Node*>::iterator, std::multimap<int, Node*>::iterator> range;
+	while (!frontera.empty() && notFound) {
+		scene->numNodesEvaluated++;
+		it = frontera.begin();
+		for (int i = 0; i < it->second->conexiones.size(); i++) {
+			scene->numNodesVisited++;
+			if (Heuristics::pix2cell(it->second->conexiones[i]->position) == endPos) {
+				notFound = false;
+				//llenar el camino
+				//indicamos de donde proviene
+				it->second->conexiones[i]->previousNode = it->second;
+				fillPath(it->second->conexiones[i],scene->numPathNodes);
+			}
+			else {
+				//añadimos el nodo a la frontera si no esta ya
+				temp = Heuristics::manhatanDistance(Heuristics::pix2cell(it->second->conexiones[i]->position), endPos);
+				range = frontera.equal_range(temp);
+				notFoundInFrontier = true;
+
+				for (auto j = range.first; j != range.second; ++j) {
+					if (j->second->position == it->second->conexiones[i]->position)
+						notFoundInFrontier = false;
+				}
+				if (it->second->previousNode != nullptr) {
+					if (checkVisited(it->second->conexiones[i]->position))
+
+						notFoundInFrontier = false;
+				}
+				if (notFoundInFrontier) {
+					//indicamos de donde proviene
+					it->second->conexiones[i]->previousNode = it->second;
+					frontera.insert(std::pair<int, Node*>(temp, it->second->conexiones[i]));
+					activateBool(it->second->conexiones[i]->position);
+					scene->numNodesAddedToF++;
+				}
+			}
+		}
+		it = frontera.erase(it);
+	}
+
+	t = clock() - t;
+	scene->timeOfSearch = clock();
 	return path;
 }

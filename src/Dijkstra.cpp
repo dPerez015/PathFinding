@@ -44,6 +44,21 @@ void dijkstra::fillPath(Node* end) {
 	}
 }
 
+void dijkstra::fillPath(Node* end, int& numNodes) {
+	path.clear();
+	while (end != nullptr) {
+		path.push_back(end->position);
+		end = end->previousNode;
+		numNodes++;
+	}
+	Vector2D temp;
+	for (int i = 0; i < path.size() / 2; i++) {
+		temp = path[i];
+		path[i] = path[path.size() - 1 - i];
+		path[path.size() - 1 - i] = temp;
+	}
+}
+
 bool dijkstra::checkFrontier( Vector2D tmp) {
 
 //	std::multimap<float, Node*>::iterator checker;
@@ -65,6 +80,22 @@ void dijkstra::checkCost(Node* node, Node* previusNode, float tmp) {
 	}
 	
 }
+void dijkstra::checkCost(Node* node, Node* previusNode, float tmp, int& numnodes) {
+	for (std::multimap<float, Node*>::iterator it = frontier.begin(); it != frontier.end(); it++) {
+		if (it->second->position == node->position) {
+			if (it->first > tmp) {
+
+				it = frontier.erase(it);
+				node->previousNode = previusNode;
+				frontier.emplace(tmp, node);
+				numnodes++;
+				break;
+			}
+		}
+	}
+
+}
+
 void dijkstra::activateBool(Vector2D pos) {
 	pos = Heuristics::pix2cell(pos);
 	visitedNodes[pos.x][pos.y]=true;
@@ -110,5 +141,60 @@ std::vector<Vector2D> dijkstra::search(Node* startNode, Vector2D endPos) {
 		it = frontier.erase(it);
 	}
 
+	return path;
+}
+
+std::vector<Vector2D> dijkstra::debugSearch(SceneDebugPF* scene,Node* startNode, Vector2D endPos) {
+
+	scene->numNodesAddedToF = 0;
+	scene->numNodesEvaluated = 0;
+	scene->numNodesVisited = 0;
+	scene->numPathNodes = 0;
+
+	clock_t t = clock();
+
+	frontier.clear();
+	path.clear();
+	for (int i = 0; i < visitedNodes.size(); i++) {
+		for (int j = 0; j < visitedNodes[i].size(); j++) {
+			visitedNodes[i][j] = false;
+		}
+	}
+	startNode->previousNode = nullptr;
+	activateBool(startNode->position);
+	frontier.emplace(0.0f, startNode);
+	float temp;//comprovarà que el valor de la frontera sigui més petit que aquest
+	notFound = true;
+	std::pair <std::multimap<float, Node*>::iterator, std::multimap<float, Node*>::iterator> range;
+	while (!frontier.empty() && notFound) {
+		scene->numNodesEvaluated++;
+		it = frontier.begin();
+		for (int i = 0; i < it->second->conexiones.size(); i++) {
+			scene->numNodesVisited++;
+			if (Heuristics::pix2cell(it->second->conexiones[i]->position) == endPos) {
+				notFound = false;
+				it->second->conexiones[i]->previousNode = it->second;
+				fillPath(it->second->conexiones[i],scene->numPathNodes);
+			}
+			else {
+				//frontier.insert(std::pair<float,Node*>(it->second->conexiones[i]->pes, it->second->conexiones[i]->position));
+				//range = frontier.equal_range(it->second->conexiones[i]->pes);
+				temp = it->first + it->second->conexiones[i]->pes;
+
+				if (checkFrontier(it->second->conexiones[i]->position)) {
+					checkCost(it->second->conexiones[i], it->second, temp);
+				}
+				else {
+					activateBool(it->second->conexiones[i]->position);
+					it->second->conexiones[i]->previousNode = it->second;
+					frontier.insert(std::pair<float, Node*>(temp, it->second->conexiones[i]));
+					scene->numNodesAddedToF++;
+				}
+			}
+		}
+		it = frontier.erase(it);
+	}
+	t = clock() - t;
+	scene->timeOfSearch = clock();
 	return path;
 }
