@@ -2,11 +2,6 @@
 
 using namespace std;
 
-bool isBFS;
-bool isDijkstra;
-bool isGFS;
-bool isAestrella;
-
 ScenePathFinding::ScenePathFinding()
 {
 	draw_grid = false;
@@ -44,7 +39,7 @@ ScenePathFinding::ScenePathFinding()
 	dijkstra::initDijkstra(num_cell_x, num_cell_y);
 	Aestrella::init(num_cell_x, num_cell_y);
 	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
-
+	algorismType = 0;
 }
 
 int ScenePathFinding::wallsOnCollumn(int column) {
@@ -150,35 +145,23 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 			draw_grid = !draw_grid;
 		else if (event->key.keysym.scancode == SDL_SCANCODE_A) {
 			cout << "BFS Algorism" << endl;
+			algorismType = 1;
 			path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = true;
-			isDijkstra = false;
-			isGFS = false;
-			isAestrella = false;
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_S) {
 			cout << "Dijkstra Algorism" << endl;
+			algorismType = 2;
 			path.points = dijkstra::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = false;
-			isDijkstra = true;
-			isGFS = false;
-			isAestrella = false;
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_D) {
 			cout << "GFS Algorism" << endl;
+			algorismType = 3;
 			path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = false;
-			isDijkstra = false;
-			isGFS = true;
-			isAestrella = false;
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_G) {
 			cout << "Astar Algorism" << endl;
+			algorismType = 4;
 			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = false;
-			isDijkstra = false;
-			isGFS = false;
-			isAestrella = true;
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
 			path.points.clear();
@@ -230,7 +213,14 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition())) < 3))
 							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 
-						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+						if(algorismType == 1)
+							path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
+						if (algorismType == 2)
+							path.points = dijkstra::search(findInGraph(agents[0]->getPosition()), coinPosition);
+						if (algorismType == 3)
+							path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+						if (algorismType == 4)
+							path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
 					}
 
 				}
@@ -289,13 +279,13 @@ void ScenePathFinding::draw()
 		SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
 		
 		//drawGraph();
-		if(isBFS == true)
+		if(algorismType == 1)
 			BFS::draw();
-		if (isDijkstra == true)
+		if (algorismType == 2)
 			dijkstra::draw();
-		if (isGFS == true)
+		if (algorismType == 3)
 			GFS::draw();
-		if (isAestrella == true)
+		if (algorismType == 4)
 			Aestrella::draw();
 		drawGraphConexions();
 		for (int i = 0; i < SRC_WIDTH; i+=CELL_SIZE)
