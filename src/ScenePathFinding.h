@@ -26,11 +26,8 @@ private:
 	std::vector<std::vector<Node>> graph;
 	int wallsOnCollumn(int);
 	int wallsonCollumn(int, int);
-	int v, h;
-	int v1, h1, numDelNodes;
+
 	bool throughTunnel = false;
-	void createGraphPorPasos();
-	void deleteNodesPorPaso();
 	Node* findInGraph(Vector2D);
 	void createGraph();
 	//debugGraph

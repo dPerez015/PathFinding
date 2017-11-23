@@ -15,11 +15,7 @@ ScenePathFinding::ScenePathFinding()
 	num_cell_y = SRC_HEIGHT / CELL_SIZE;
 	initMaze();
 	createGraph();
-	/*v = 0;
-	h = 0;
-	v1 = 0;
-	h1 = 0;*/
-	numDelNodes = 0;
+
 	loadTextures("../res/maze.png", "../res/coin.png");
 
 	srand((unsigned int)time(NULL));
@@ -109,61 +105,8 @@ void ScenePathFinding::createGraph() {
 			}
 		}
 	}
-	/*for (int i = 0; i < num_cell_x; i++) {
-		int nodesErased = 0;
-		for (int j = 0; j < num_cell_y-nodesErased; j++) {
-			if (graph[i][j].conexiones.empty()) {
-				nodesErased++;
-				graph[i].erase(graph[i].begin() + j);
-				j--;
-			}
-		}
-	}*/
 }
 
-void ScenePathFinding::deleteNodesPorPaso() {
-	if(h1<num_cell_x){
-		if (v1 < num_cell_y - numDelNodes) {
-			if (graph[h1][v1].conexiones.empty()) {
-				numDelNodes++;
-				graph[h1].erase(graph[h1].begin() + v1);
-				v1--;
-			}
-			v1++;
-		}
-		else {
-			numDelNodes = 0;
-			h1++;
-		}
-	}
-}
-void ScenePathFinding::createGraphPorPasos() {
-	if (h < num_cell_x) {
-		if (v<num_cell_y) {
-			if (terrain[h][v] != 0) {
-				if (terrain[(h + 1) % num_cell_x][v] == 1) {
-					graph[h][v].conexiones.push_back(&graph[(h + 1) % num_cell_x][v]);
-					graph[(h + 1) % num_cell_x][v].conexiones.push_back(&graph[h][v]);
-				}
-				if (terrain[h][(v + 1) % num_cell_y] == 1) {
-					graph[h][v].conexiones.push_back(&graph[h][(v + 1) % num_cell_y]);
-					graph[h][(v + 1) % num_cell_y].conexiones.push_back(&graph[h][v]);
-				}
-			}
-			v++;
-		}
-		else {
-			h++;
-			v = 0;
-		}
-	}
-	else {
-		
-		deleteNodesPorPaso();
-		
-	}
-
-}
 
 /*
 Funció que retorna el node en el graph d'una posicio determinada
@@ -394,6 +337,10 @@ void ScenePathFinding::drawMaze()
 	else
 	{
 		SDL_RenderCopy(TheApp::Instance()->getRenderer(), background_texture, NULL, NULL );
+		
+		//pintar les zones amb mes pesos
+		//TODO
+		
 	}
 }
 
@@ -506,6 +453,8 @@ void ScenePathFinding::initMaze()
 		}
 	}
 
+	//posar a random position uns quants cims(mes pes)
+	//TODO
 }
 
 bool ScenePathFinding::loadTextures(char* filename_bg, char* filename_coin)
