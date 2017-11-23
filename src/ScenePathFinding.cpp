@@ -346,8 +346,6 @@ void ScenePathFinding::draw()
 		SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 255, 255, 255, 127);
 		
 		//drawGraph();
-		//GFS::draw();
-		//dijkstra::draw();
 		if(isBFS == true)
 			BFS::draw();
 		if (isDijkstra == true)
