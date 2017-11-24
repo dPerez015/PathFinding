@@ -136,8 +136,10 @@
     <ClCompile Include="..\src\BFS.cpp" />
     <ClCompile Include="..\src\Dijkstra.cpp" />
     <ClCompile Include="..\src\GreedyFirstSearch.cpp" />
+    <ClCompile Include="..\src\Heuristics.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\SceneDebugPF.cpp" />
+    <ClCompile Include="..\src\SceneEnemy.cpp" />
     <ClCompile Include="..\src\SceneGroupPathFinding.cpp" />
     <ClCompile Include="..\src\ScenePathFinding.cpp" />
     <ClCompile Include="..\src\SDL_SimpleApp.cpp" />
@@ -154,6 +156,7 @@
     <ClInclude Include="..\src\Node.h" />
     <ClInclude Include="..\src\Path.h" />
     <ClInclude Include="..\src\SceneDebugPF.h" />
+    <ClInclude Include="..\src\SceneEnemy.h" />
     <ClInclude Include="..\src\SceneGroupPathFinding.h" />
     <ClInclude Include="..\src\ScenePathFinding.h" />
     <ClInclude Include="..\src\SteeringBehavior.h" />

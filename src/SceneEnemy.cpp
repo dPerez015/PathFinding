@@ -194,6 +194,13 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 	default:
 		break;
 	}
+
+	//if (Vector2D::Distance(agents[0]->getPosition(), agents[1]->getPosition()) < 250) {
+	if(Heuristics::manhatanDistance(pix2cell(agents[0]->getPosition()),pix2cell(agents[1]->getPosition()))>10 && !hasChangedPath){
+		hasChangedPath = true;
+		currentTargetIndex = -1;
+		path.points = Aestrella::search(this, findInGraph(agents[0]->getPosition()), coinPosition);
+	}
 	if ((currentTargetIndex == -1) && (path.points.size()>0))
 		currentTargetIndex = 0;
 
@@ -208,6 +215,7 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 			{
 				if (dist < 3)
 				{
+					
 					path.points.clear();
 					currentTargetIndex = -1;
 					agents[0]->setVelocity(Vector2D(0, 0));
@@ -229,6 +237,7 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 				}
 				return;
 			}
+
 			//tunnel stuff
 			//else -> el target no es l'ultim target del path
 			//si ha de sortir de la dreta
@@ -240,13 +249,11 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 				currentTarget.x -= CELL_SIZE;
 				throughTunnel = true;
 			}
+			hasChangedPath = false;
 			currentTargetIndex++;
 
 		}
-		else if (Heuristics::manhatanDistance(pix2cell(agents[0]->getPosition()), pix2cell(agents[1]->getPosition())) < 6) {
-			currentTargetIndex = 0;
-			path.points = Aestrella::search(this,findInGraph(agents[0]->getPosition()), coinPosition);
-		}
+		
 		if (!throughTunnel) {
 			currentTarget = path.points[currentTargetIndex];
 		}
@@ -270,7 +277,7 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 
 		float distEnemy = Vector2D::Distance(agents[1]->getPosition(), enemyPath.points[currentTargetIndexEnemy]);
 
-		if (distEnemy < path.ARRIVAL_DISTANCE)
+		if (distEnemy < enemyPath.ARRIVAL_DISTANCE)
 		{
 			if (throughTunnelEnemy) throughTunnelEnemy = false;
 			if (currentTargetIndexEnemy == enemyPath.points.size() - 1)
@@ -280,16 +287,16 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 					enemyPath.points.clear();
 					currentTargetIndexEnemy = -1;
 					agents[1]->setVelocity(Vector2D(0, 0));
-					// if we have arrived to the coin, replace it ina random cell!
+
 					if (pix2cell(agents[1]->getPosition()) == enemyTarget)
 					{
 						enemyTarget = Vector2D(-1, -1);
 						while ((!isValidCell(enemyTarget)) || (Vector2D::Distance(enemyTarget, pix2cell(agents[1]->getPosition())) < 3))
 							enemyTarget = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
-						enemyPath.points = Aestrella::search(findInGraph(agents[1]->getPosition()), enemyTarget);
-						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
-					}
 
+						enemyPath.points = Aestrella::search(findInGraph(agents[1]->getPosition()), enemyTarget);
+
+					}
 
 				}
 				else
@@ -320,6 +327,9 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 
 		Vector2D steering_force = agents[1]->Behavior()->Seek(agents[1], currentEnemyTarget, dtime);
 		agents[1]->update(steering_force, dtime, event);
+	}
+	else {
+		agents[1]->update(Vector2D(0, 0), dtime, event);
 	}
 }
 void SceneEnemy::drawGraphConexions(){

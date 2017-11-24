@@ -34,8 +34,8 @@ float Heuristics::enemyHeuristics(SceneEnemy* scene, Vector2D init, Vector2D fin
 		manhatanPes = abs(ret1) + abs(init.y - fin.y);
 	}
 	//pes per proximitat enemic
-	float pesEnemy = 5 / (sqrt(manhatanDistance(init, pix2cell(scene->agents[1]->getPosition()))));
-
+	float pesEnemy = 40 / (sqrt(manhatanDistance(init, pix2cell(scene->agents[1]->getPosition())))+1);
+	//float pesEnemy=
 	return pesEnemy + manhatanPes;
 }
 	

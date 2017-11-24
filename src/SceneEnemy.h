@@ -46,6 +46,7 @@ private:
 	Vector2D enemyTarget;
 	Vector2D currentTarget;
 	Vector2D currentEnemyTarget;
+	bool hasChangedPath;
 	bool throughTunnelEnemy;
 	int currentTargetIndex;
 	int currentTargetIndexEnemy;

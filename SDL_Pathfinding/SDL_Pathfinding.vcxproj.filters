@@ -51,6 +51,12 @@
     <ClCompile Include="..\src\SceneGroupPathFinding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\SceneEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Heuristics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\SDL_SimpleApp.h">
@@ -99,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\SceneGroupPathFinding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SceneEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
