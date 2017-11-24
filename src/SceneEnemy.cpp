@@ -63,6 +63,7 @@ SceneEnemy::SceneEnemy()
 	enemyPath.points = Aestrella::search(findInGraph(agents[1]->getPosition()), enemyTarget);
 
 	path.points = Aestrella::search(this,findInGraph(agents[0]->getPosition()), coinPosition);
+	hasChangedPath = false;
 }
 
 int SceneEnemy::wallsOnCollumn(int column) {
@@ -196,11 +197,12 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 	}
 
 	//if (Vector2D::Distance(agents[0]->getPosition(), agents[1]->getPosition()) < 250) {
-	if(Heuristics::manhatanDistance(pix2cell(agents[0]->getPosition()),pix2cell(agents[1]->getPosition()))>10 && !hasChangedPath){
+	if(Heuristics::manhatanDistance(pix2cell(agents[0]->getPosition()),pix2cell(agents[1]->getPosition()))<10 && !hasChangedPath){
 		hasChangedPath = true;
-		currentTargetIndex = -1;
+		currentTargetIndex = 1;
 		path.points = Aestrella::search(this, findInGraph(agents[0]->getPosition()), coinPosition);
 	}
+	
 	if ((currentTargetIndex == -1) && (path.points.size()>0))
 		currentTargetIndex = 0;
 
@@ -225,7 +227,7 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 						coinPosition = Vector2D(-1, -1);
 						while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, pix2cell(agents[0]->getPosition())) < 3))
 							coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
-						path.points = Aestrella::search(this, findInGraph(agents[0]->getPosition()), coinPosition);
+						path.points = Aestrella::search( findInGraph(agents[0]->getPosition()), coinPosition);
 						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 					}
 
@@ -251,6 +253,7 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 			}
 			hasChangedPath = false;
 			currentTargetIndex++;
+			
 
 		}
 		
@@ -272,8 +275,6 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 		currentTargetIndexEnemy = 0;
 
 	if (currentTargetIndexEnemy>=0) {
-
-
 
 		float distEnemy = Vector2D::Distance(agents[1]->getPosition(), enemyPath.points[currentTargetIndexEnemy]);
 

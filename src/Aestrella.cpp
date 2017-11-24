@@ -74,7 +74,12 @@ bool Aestrella::checkFrontier( Vector2D tmp) {
 
 //	std::multimap<float, Node*>::iterator checker;
 	tmp = Heuristics::pix2cell(tmp);
-
+	if (tmp.x < 0 ) {
+		tmp.x = 0;
+	}
+	if (tmp.x > 39) {
+		tmp.x = 39;
+	}
 	return visitedNodes[tmp.x][tmp.y];
 }
 void Aestrella::checkCost(Node* node, Node* previusNode, AstarCost tmp) {
