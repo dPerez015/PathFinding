@@ -9,7 +9,8 @@
 #include "Heuristics.h"
 #include <time.h>
 #include "SceneDebugPF.h"
-
+#include "SceneEnemy.h"
+class SceneEnemy;
 class SceneDebugPF;
 
 struct AstarCost {
@@ -42,6 +43,7 @@ public:
 	static void fillPath(Node*,int&);
 	static bool checkFrontier(Vector2D);
 	static std::vector<Vector2D> search(Node*,Vector2D);
+	static std::vector<Vector2D> search(SceneEnemy*, Node*, Vector2D);
 	static std::vector<Vector2D> debugSearch(SceneDebugPF*,Node*, Vector2D);
 	static void draw();
 	static float getPathCost(); //util per a la cerca de grup

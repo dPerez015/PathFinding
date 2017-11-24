@@ -45,6 +45,7 @@ private:
 	Vector2D currentTarget;
 	int currentTargetIndex;
 	Path path;
+	Path enemyPath;
 	int num_cell_x;
 	int num_cell_y;
 	bool draw_grid;

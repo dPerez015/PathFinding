@@ -26,11 +26,12 @@ private:
 	std::vector<std::vector<Node>> graph;
 	int wallsOnCollumn(int);
 	int wallsonCollumn(int, int);
-	int v, h;
-	int v1, h1, numDelNodes;
+
+	//relacionat amb el pes
+	void createHill(int); //funcio que randomitza zones amb mes pes
+	int maxWeight;
+
 	bool throughTunnel = false;
-	void createGraphPorPasos();
-	void deleteNodesPorPaso();
 	Node* findInGraph(Vector2D);
 	void createGraph();
 	//debugGraph
@@ -58,4 +59,6 @@ private:
 	Vector2D cell2pix(Vector2D cell);
 	Vector2D pix2cell(Vector2D pix);
 	bool isValidCell(Vector2D cell);
+	int algorismType;
+	
 };
