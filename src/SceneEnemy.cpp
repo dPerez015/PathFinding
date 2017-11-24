@@ -25,7 +25,7 @@ SceneEnemy::SceneEnemy()
 	agents.push_back(agent);
 
 	Agent* enemy = new Agent;
-	agent->loadSpriteTexture("../res/zombie.png", 8);
+	enemy->loadSpriteTexture("../res/zombie1.png", 8);
 	agents.push_back(enemy);
 
 	// set agent position coords to the center of a random cell
@@ -33,12 +33,22 @@ SceneEnemy::SceneEnemy()
 	while (!isValidCell(rand_cell)) 
 		rand_cell = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 	agents[0]->setPosition(cell2pix(rand_cell));
-
+	
+	
+	Vector2D rand_cell2 = (-1,-1);
+	while(!isValidCell(rand_cell2))
+		rand_cell2 = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+	agents[1]->setPosition(cell2pix(rand_cell2));
 	// set the coin in a random cell (but at least 3 cells far from the agent)
 	coinPosition = Vector2D(-1,-1);
 	while ((!isValidCell(coinPosition)) || (Vector2D::Distance(coinPosition, rand_cell)<3)) 
 		coinPosition = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
 	
+	//targetEnemy
+	enemyTarget = Vector2D(-1, -1);
+	while(!isValidCell(enemyTarget))
+		enemyTarget= Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+
 	// PathFollowing next Target
 	currentTarget = Vector2D(0, 0);
 	currentTargetIndex = -1;
@@ -46,8 +56,13 @@ SceneEnemy::SceneEnemy()
 	GFS::initGFS(num_cell_x, num_cell_y);
 	dijkstra::initDijkstra(num_cell_x, num_cell_y);
 	Aestrella::init(num_cell_x, num_cell_y);
-	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+	
 
+	currentEnemyTarget = Vector2D(0, 0);
+	currentTargetIndexEnemy = -1;
+	enemyPath.points = Aestrella::search(findInGraph(agents[1]->getPosition()), enemyTarget);
+
+	path.points = Aestrella::search(this,findInGraph(agents[0]->getPosition()), coinPosition);
 }
 
 int SceneEnemy::wallsOnCollumn(int column) {
@@ -120,49 +135,6 @@ void SceneEnemy::createGraph() {
 	}*/
 }
 
-void SceneEnemy::deleteNodesPorPaso() {
-	if(h1<num_cell_x){
-		if (v1 < num_cell_y - numDelNodes) {
-			if (graph[h1][v1].conexiones.empty()) {
-				numDelNodes++;
-				graph[h1].erase(graph[h1].begin() + v1);
-				v1--;
-			}
-			v1++;
-		}
-		else {
-			numDelNodes = 0;
-			h1++;
-		}
-	}
-}
-void SceneEnemy::createGraphPorPasos() {
-	if (h < num_cell_x) {
-		if (v<num_cell_y) {
-			if (terrain[h][v] != 0) {
-				if (terrain[(h + 1) % num_cell_x][v] == 1) {
-					graph[h][v].conexiones.push_back(&graph[(h + 1) % num_cell_x][v]);
-					graph[(h + 1) % num_cell_x][v].conexiones.push_back(&graph[h][v]);
-				}
-				if (terrain[h][(v + 1) % num_cell_y] == 1) {
-					graph[h][v].conexiones.push_back(&graph[h][(v + 1) % num_cell_y]);
-					graph[h][(v + 1) % num_cell_y].conexiones.push_back(&graph[h][v]);
-				}
-			}
-			v++;
-		}
-		else {
-			h++;
-			v = 0;
-		}
-	}
-	else {
-		
-		deleteNodesPorPaso();
-		
-	}
-
-}
 
 /*
 Funció que retorna el node en el graph d'una posicio determinada
@@ -204,46 +176,6 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 	case SDL_KEYDOWN:
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
-	/*	else if (event->key.keysym.scancode == SDL_SCANCODE_A) {
-			cout << "BFS Algorism" << endl;
-			path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = true;
-			isDijkstra = false;
-			isGFS = false;
-			isAestrella = false;
-		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_S) {
-			cout << "Dijkstra Algorism" << endl;
-			path.points = dijkstra::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = false;
-			isDijkstra = true;
-			isGFS = false;
-			isAestrella = false;
-		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_D) {
-			cout << "GFS Algorism" << endl;
-			path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = false;
-			isDijkstra = false;
-			isGFS = true;
-			isAestrella = false;
-		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_G) {
-			cout << "Astar Algorism" << endl;
-			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
-			isBFS = false;
-			isDijkstra = false;
-			isGFS = false;
-			isAestrella = true;
-		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_P) {
-			path.points.clear();
-			currentTargetIndex = 0;
-		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
-			//deleteNodesPorPaso();
-			//Aestrella::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
-		break;*/
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
 		if (event->button.button == SDL_BUTTON_LEFT)
@@ -311,28 +243,83 @@ void SceneEnemy::update(float dtime, SDL_Event *event)
 			currentTargetIndex++;
 
 		}
-
+		else if (Heuristics::manhatanDistance(pix2cell(agents[0]->getPosition()), pix2cell(agents[1]->getPosition())) < 6) {
+			currentTargetIndex = 0;
+			path.points = Aestrella::search(this,findInGraph(agents[0]->getPosition()), coinPosition);
+		}
 		if (!throughTunnel) {
 			currentTarget = path.points[currentTargetIndex];
 		}
 
 		Vector2D steering_force = agents[0]->Behavior()->Seek(agents[0], currentTarget, dtime);
 		agents[0]->update(steering_force, dtime, event);
-
-		//enemy
-		
-		float distEnemy = Vector2D::Distance(agents[1]->getPosition(), path.points[currentTargetIndex]);
-		
-		if (dist < path.ARRIVAL_DISTANCE){
-
-		}
-
-		Vector2D steering_force = agents[1]->Behavior()->Seek(agents[1], currentTarget, dtime);
-		agents[1]->update(steering_force, dtime, event);
 	} 
 	else
 	{
 		agents[0]->update(Vector2D(0,0), dtime, event);
+	}
+
+	//enemy
+
+	if ((currentTargetIndexEnemy == -1) && (enemyPath.points.size()>0))
+		currentTargetIndexEnemy = 0;
+
+	if (currentTargetIndexEnemy>=0) {
+
+
+
+		float distEnemy = Vector2D::Distance(agents[1]->getPosition(), enemyPath.points[currentTargetIndexEnemy]);
+
+		if (distEnemy < path.ARRIVAL_DISTANCE)
+		{
+			if (throughTunnelEnemy) throughTunnelEnemy = false;
+			if (currentTargetIndexEnemy == enemyPath.points.size() - 1)
+			{
+				if (distEnemy < 3)
+				{
+					enemyPath.points.clear();
+					currentTargetIndexEnemy = -1;
+					agents[1]->setVelocity(Vector2D(0, 0));
+					// if we have arrived to the coin, replace it ina random cell!
+					if (pix2cell(agents[1]->getPosition()) == enemyTarget)
+					{
+						enemyTarget = Vector2D(-1, -1);
+						while ((!isValidCell(enemyTarget)) || (Vector2D::Distance(enemyTarget, pix2cell(agents[1]->getPosition())) < 3))
+							enemyTarget = Vector2D((float)(rand() % num_cell_x), (float)(rand() % num_cell_y));
+						enemyPath.points = Aestrella::search(findInGraph(agents[1]->getPosition()), enemyTarget);
+						//path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
+					}
+
+
+				}
+				else
+				{
+					Vector2D steering_force = agents[1]->Behavior()->Arrive(agents[1], currentEnemyTarget, enemyPath.ARRIVAL_DISTANCE, dtime);
+					agents[1]->update(steering_force, dtime, event);
+				}
+				return;
+			}
+			//tunnel stuff
+			//else -> el target no es l'ultim target del path
+			//si ha de sortir de la dreta
+			else if (pix2cell(enemyPath.points[currentTargetIndexEnemy]).x == num_cell_x - 1 && pix2cell(enemyPath.points[currentTargetIndexEnemy + 1]).x == 0) {
+				currentEnemyTarget.x += CELL_SIZE;
+				throughTunnelEnemy = true;
+			}//si ha de sortir de l'esquerra
+			else if (pix2cell(enemyPath.points[currentTargetIndexEnemy]).x == 0 && pix2cell(enemyPath.points[currentTargetIndexEnemy + 1]).x == num_cell_x - 1) {
+				currentEnemyTarget.x -= CELL_SIZE;
+				throughTunnelEnemy = true;
+			}
+			currentTargetIndexEnemy++;
+
+		}
+
+		if (!throughTunnelEnemy) {
+			currentEnemyTarget = enemyPath.points[currentTargetIndexEnemy];
+		}
+
+		Vector2D steering_force = agents[1]->Behavior()->Seek(agents[1], currentEnemyTarget, dtime);
+		agents[1]->update(steering_force, dtime, event);
 	}
 }
 void SceneEnemy::drawGraphConexions(){
@@ -383,9 +370,17 @@ void SceneEnemy::draw()
 			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), (int)(path.points[i - 1].x), (int)(path.points[i - 1].y), (int)(path.points[i].x), (int)(path.points[i].y));
 	}
 
-	draw_circle(TheApp::Instance()->getRenderer(), (int)currentTarget.x, (int)currentTarget.y, 15, 255, 0, 0, 255);
+	for (int i = 0; i < (int)enemyPath.points.size(); i++)
+	{
+		draw_circle(TheApp::Instance()->getRenderer(), (int)(enemyPath.points[i].x), (int)(enemyPath.points[i].y), 15, 0, 255, 255, 255);
+		if (i > 0)
+			SDL_RenderDrawLine(TheApp::Instance()->getRenderer(), (int)(enemyPath.points[i - 1].x), (int)(enemyPath.points[i - 1].y), (int)(enemyPath.points[i].x), (int)(enemyPath.points[i].y));
+	}
 
+	draw_circle(TheApp::Instance()->getRenderer(), (int)currentTarget.x, (int)currentTarget.y, 15, 255, 0, 0, 255);
+	agents[1]->draw();
 	agents[0]->draw();
+	
 }
 
 const char* SceneEnemy::getTitle()

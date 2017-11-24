@@ -29,6 +29,7 @@ private:
 	int wallsonCollumn(int, int);
 	int v, h;
 	int v1, h1, numDelNodes;
+	int algorismType;
 	bool throughTunnel = false;
 	void createGraphPorPasos();
 	void deleteNodesPorPaso();
@@ -42,8 +43,12 @@ private:
 
 	std::vector<Agent*> agents;
 	Vector2D coinPosition;
+	Vector2D enemyTarget;
 	Vector2D currentTarget;
+	Vector2D currentEnemyTarget;
+	bool throughTunnelEnemy;
 	int currentTargetIndex;
+	int currentTargetIndexEnemy;
 	Path path;
 	Path enemyPath;
 	int num_cell_x;
