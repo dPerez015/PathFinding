@@ -2,6 +2,7 @@
 #include "Vector2D.h"
 #include "SDL_SimpleApp.h"
 #include "SceneEnemy.h"
+
 class SceneEnemy;
 struct Heuristics {	
 
