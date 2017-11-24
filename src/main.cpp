@@ -62,7 +62,7 @@ int main(int argc, char ** argv)
 				curr_scene;
 				app->setWindowTitle(curr_scene->getTitle());
 			}
-			if ((event.key.keysym.scancode == SDL_SCANCODE_Q) || (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE))
+			if ( (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE))
 			{
 				quit = true;
 			}

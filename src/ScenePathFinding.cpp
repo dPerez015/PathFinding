@@ -5,16 +5,18 @@ using namespace std;
 
 ScenePathFinding::ScenePathFinding()
 {
-	draw_grid = false;
+	numberOfHills = 20;
 
+	draw_grid = false;
 	num_cell_x = SRC_WIDTH / CELL_SIZE;
 	num_cell_y = SRC_HEIGHT / CELL_SIZE;
+	srand((unsigned int)time(NULL));
 	initMaze();
 	createGraph();
 
 	loadTextures("../res/maze.png", "../res/coin.png");
 
-	srand((unsigned int)time(NULL));
+	
 
 	Agent *agent = new Agent;
 	agent->loadSpriteTexture("../res/soldier.png", 4);
@@ -40,7 +42,7 @@ ScenePathFinding::ScenePathFinding()
 	dijkstra::initDijkstra(num_cell_x, num_cell_y);
 	Aestrella::init(num_cell_x, num_cell_y);
 	//path.points=GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
-	algorismType = 0;
+	algorismType = 1;
 }
 
 int ScenePathFinding::wallsOnCollumn(int column) {
@@ -72,7 +74,7 @@ void ScenePathFinding::createGraph() {
 			if (terrain[i][j] != 0) {
 				Node node;
 				node.position = cell2pix(Vector2D(i, j));
-				node.pes = 1;
+				node.pes = terrain[i][j];
 				node.previousNode=nullptr;
 				graphCol.push_back(node);
 			}
@@ -87,13 +89,13 @@ void ScenePathFinding::createGraph() {
 		for (int j = 0; j < num_cell_y; j++) {
 			if (terrain[i][j] != 0) {
 
-				if (terrain[(i + 1) % num_cell_x][j] == 1) {
+				if (terrain[(i + 1) % num_cell_x][j] != 0) {
 					int wallsNextCollumn = wallsonCollumn((i + 1)%num_cell_x, j);
 					graph[i][jGraph].conexiones.push_back(&graph[(i + 1) % num_cell_x][j-wallsNextCollumn]);
 					graph[(i + 1) % num_cell_x][j - wallsNextCollumn].conexiones.push_back(&graph[i][jGraph]);
 				}
 
-				if (terrain[i][(j + 1) % num_cell_y] == 1) {
+				if (terrain[i][(j + 1) % num_cell_y] != 0) {
 					graph[i][jGraph].conexiones.push_back(&graph[i][(jGraph + 1) % graph[i].size()]);
 					graph[i][(jGraph + 1) %  graph[i].size()].conexiones.push_back(&graph[i][jGraph]);
 				}
@@ -144,23 +146,27 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 	case SDL_KEYDOWN:
 		if (event->key.keysym.scancode == SDL_SCANCODE_SPACE)
 			draw_grid = !draw_grid;
-		else if (event->key.keysym.scancode == SDL_SCANCODE_A) {
+		else if (event->key.keysym.scancode == SDL_SCANCODE_Q) {
+			currentTargetIndex = -1;
 			cout << "BFS Algorism" << endl;
 			algorismType = 1;
 			path.points = BFS::search(findInGraph(agents[0]->getPosition()), coinPosition);
 		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_S) {
+		else if (event->key.keysym.scancode == SDL_SCANCODE_W) {
 			cout << "Dijkstra Algorism" << endl;
+			currentTargetIndex = -1;
 			algorismType = 2;
 			path.points = dijkstra::search(findInGraph(agents[0]->getPosition()), coinPosition);
 		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_D) {
+		else if (event->key.keysym.scancode == SDL_SCANCODE_E) {
 			cout << "GFS Algorism" << endl;
+			currentTargetIndex = -1;
 			algorismType = 3;
 			path.points = GFS::Search(findInGraph(agents[0]->getPosition()), coinPosition);
 		}
-		else if (event->key.keysym.scancode == SDL_SCANCODE_G) {
+		else if (event->key.keysym.scancode == SDL_SCANCODE_R) {
 			cout << "Astar Algorism" << endl;
+			currentTargetIndex = -1;
 			algorismType = 4;
 			path.points = Aestrella::search(findInGraph(agents[0]->getPosition()), coinPosition);
 		}
@@ -170,7 +176,7 @@ void ScenePathFinding::update(float dtime, SDL_Event *event)
 		}
 		else if (event->key.keysym.scancode == SDL_SCANCODE_N)
 			//deleteNodesPorPaso();
-			//Aestrella::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
+			BFS::searchPerTick(findInGraph(agents[0]->getPosition()), coinPosition);
 		break;
 	case SDL_MOUSEMOTION:
 	case SDL_MOUSEBUTTONDOWN:
@@ -271,9 +277,10 @@ void ScenePathFinding::drawGraphConexions(){
 void ScenePathFinding::draw()
 {
 	drawMaze();
+	drawHills();
 	drawCoin();
 
-
+	
 	if (draw_grid)
 	{
 		
@@ -329,9 +336,6 @@ void ScenePathFinding::drawMaze()
 	{
 		SDL_RenderCopy(TheApp::Instance()->getRenderer(), background_texture, NULL, NULL );
 		
-		//pintar les zones amb mes pesos
-		//TODO
-		
 	}
 }
 
@@ -341,6 +345,22 @@ void ScenePathFinding::drawCoin()
 	int offset = CELL_SIZE / 2;
 	SDL_Rect dstrect = {(int)coin_coords.x-offset, (int)coin_coords.y - offset, CELL_SIZE, CELL_SIZE};
 	SDL_RenderCopy(TheApp::Instance()->getRenderer(), coin_texture, NULL, &dstrect);
+}
+
+void ScenePathFinding::drawHills() {
+	float alphaConversor = (float)255/maxWeight; //alpha maxim serà el pes maxim
+	SDL_Rect auxRect;
+	for (int i = 0; i < num_cell_x; ++i) {
+		for (int j = 0; j < num_cell_y; ++j) {
+			if (terrain[i][j] > 1) { //totes les cells per defecte tenen pes 1, no volem que s'hi pinti res
+				SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 0, terrain[i][j] * alphaConversor, 0, 255);
+				Vector2D auxCellPos = cell2pix(Vector2D(i, j));
+				auxRect = {(int)auxCellPos.x-CELL_SIZE/2,(int)auxCellPos.y-CELL_SIZE/2,CELL_SIZE,CELL_SIZE };
+				SDL_RenderFillRect(TheApp::Instance()->getRenderer(), &auxRect); 
+				
+			}
+		}
+	}
 }
 
 void ScenePathFinding::initMaze()
@@ -428,7 +448,7 @@ void ScenePathFinding::initMaze()
 	maxWeight = 1;
 
 	//posar a random position uns quants cims(mes pes)
-	createHill(5);
+	createHill(numberOfHills);
 
 	// (2nd) set to zero all cells that belong to a wall
 	int offset = CELL_SIZE / 2;
@@ -505,7 +525,7 @@ void ScenePathFinding::createHill(int numberOfHills) {
 			for (int j = hillPos.y - 3; j <= hillPos.y + 3; ++j) {
 				int manhDist = Heuristics::manhatanDistance(Vector2D(i, j), hillPos);
 				if (manhDist < 4) {
-					terrain[i][j] += (4 - manhDist) * 10; //li suma 10 al pes per cada casella que s'apropa al centre
+					terrain[i][j] += (4 - manhDist) * 5; //li suma 10 al pes per cada casella que s'apropa al centre
 					if (terrain[i][j] > maxWeight) maxWeight = terrain[i][j]; //actualitzar maxWeight (serveix per pintar els pesos despres)
 				}
 			}

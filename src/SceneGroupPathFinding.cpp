@@ -4,20 +4,19 @@ using namespace std;
 
 SceneGroupPathFinding::SceneGroupPathFinding()
 {
-	draw_grid = false;
+	numberOfHills = 20;
+	numberOfCoins = 5;
 
+	draw_grid = false;
+	srand((unsigned int)time(NULL));
 	num_cell_x = SRC_WIDTH / CELL_SIZE;
 	num_cell_y = SRC_HEIGHT / CELL_SIZE;
 	initMaze();
 	createGraph();
-	/*v = 0;
-	h = 0;
-	v1 = 0;
-	h1 = 0;*/
-	numDelNodes = 0;
+	
 	loadTextures("../res/maze.png", "../res/coin.png");
 
-	srand((unsigned int)time(NULL));
+	
 
 	Agent *agent = new Agent;
 	agent->loadSpriteTexture("../res/soldier.png", 4);
@@ -31,7 +30,7 @@ SceneGroupPathFinding::SceneGroupPathFinding()
 	agents[0]->setPosition(cell2pix(rand_cell));
 
 	//create random goals
-	createNewCoins(5);
+	createNewCoins(numberOfCoins);
 
 	// PathFollowing next Target
 	currentTarget = Vector2D(0, 0);
@@ -99,13 +98,13 @@ void SceneGroupPathFinding::createGraph() {
 		for (int j = 0; j < num_cell_y; j++) {
 			if (terrain[i][j] != 0) {
 
-				if (terrain[(i + 1) % num_cell_x][j] == 1) {
+				if (terrain[(i + 1) % num_cell_x][j] != 0) {
 					int wallsNextCollumn = wallsonCollumn((i + 1) % num_cell_x, j);
 					graph[i][jGraph].conexiones.push_back(&graph[(i + 1) % num_cell_x][j - wallsNextCollumn]);
 					graph[(i + 1) % num_cell_x][j - wallsNextCollumn].conexiones.push_back(&graph[i][jGraph]);
 				}
 
-				if (terrain[i][(j + 1) % num_cell_y] == 1) {
+				if (terrain[i][(j + 1) % num_cell_y] != 0) {
 					graph[i][jGraph].conexiones.push_back(&graph[i][(jGraph + 1) % graph[i].size()]);
 					graph[i][(jGraph + 1) % graph[i].size()].conexiones.push_back(&graph[i][jGraph]);
 				}
@@ -113,60 +112,6 @@ void SceneGroupPathFinding::createGraph() {
 			}
 		}
 	}
-	/*for (int i = 0; i < num_cell_x; i++) {
-	int nodesErased = 0;
-	for (int j = 0; j < num_cell_y-nodesErased; j++) {
-	if (graph[i][j].conexiones.empty()) {
-	nodesErased++;
-	graph[i].erase(graph[i].begin() + j);
-	j--;
-	}
-	}
-	}*/
-}
-
-void SceneGroupPathFinding::deleteNodesPorPaso() {
-	if (h1<num_cell_x) {
-		if (v1 < num_cell_y - numDelNodes) {
-			if (graph[h1][v1].conexiones.empty()) {
-				numDelNodes++;
-				graph[h1].erase(graph[h1].begin() + v1);
-				v1--;
-			}
-			v1++;
-		}
-		else {
-			numDelNodes = 0;
-			h1++;
-		}
-	}
-}
-void SceneGroupPathFinding::createGraphPorPasos() {
-	if (h < num_cell_x) {
-		if (v<num_cell_y) {
-			if (terrain[h][v] != 0) {
-				if (terrain[(h + 1) % num_cell_x][v] == 1) {
-					graph[h][v].conexiones.push_back(&graph[(h + 1) % num_cell_x][v]);
-					graph[(h + 1) % num_cell_x][v].conexiones.push_back(&graph[h][v]);
-				}
-				if (terrain[h][(v + 1) % num_cell_y] == 1) {
-					graph[h][v].conexiones.push_back(&graph[h][(v + 1) % num_cell_y]);
-					graph[h][(v + 1) % num_cell_y].conexiones.push_back(&graph[h][v]);
-				}
-			}
-			v++;
-		}
-		else {
-			h++;
-			v = 0;
-		}
-	}
-	else {
-
-		deleteNodesPorPaso();
-
-	}
-
 }
 
 /*
@@ -330,6 +275,7 @@ void SceneGroupPathFinding::drawGraphConexions() {
 void SceneGroupPathFinding::draw()
 {
 	drawMaze();
+	drawHills();
 	drawCoin();
 
 
@@ -395,6 +341,22 @@ void SceneGroupPathFinding::drawCoin()
 		SDL_RenderCopy(TheApp::Instance()->getRenderer(), coin_texture, NULL, &dstrect);
 	}
 	
+}
+
+void SceneGroupPathFinding::drawHills() {
+	float alphaConversor = (float)255 / maxWeight; //alpha maxim serà el pes maxim
+	SDL_Rect auxRect;
+	for (int i = 0; i < num_cell_x; ++i) {
+		for (int j = 0; j < num_cell_y; ++j) {
+			if (terrain[i][j] > 1) { //totes les cells per defecte tenen pes 1, no volem que s'hi pinti res
+				SDL_SetRenderDrawColor(TheApp::Instance()->getRenderer(), 0, terrain[i][j] * alphaConversor, 0, 255);
+				Vector2D auxCellPos = cell2pix(Vector2D(i, j));
+				auxRect = { (int)auxCellPos.x - CELL_SIZE / 2,(int)auxCellPos.y - CELL_SIZE / 2,CELL_SIZE,CELL_SIZE };
+				SDL_RenderFillRect(TheApp::Instance()->getRenderer(), &auxRect);
+
+			}
+		}
+	}
 }
 
 void SceneGroupPathFinding::initMaze()
@@ -478,6 +440,12 @@ void SceneGroupPathFinding::initMaze()
 		vector<int> terrain_col(num_cell_y, 1);
 		terrain.push_back(terrain_col);
 	}
+
+	maxWeight = 1;
+
+	//posar a random position uns quants cims(mes pes)
+	createHill(numberOfHills);
+
 	// (2nd) set to zero all cells that belong to a wall
 	int offset = CELL_SIZE / 2;
 	for (int i = 0; i < num_cell_x; i++)
@@ -553,10 +521,28 @@ bool SceneGroupPathFinding::isThereCoin(Vector2D cell) {
 	return false;
 }
 
+void SceneGroupPathFinding::createHill(int numberOfHills) {
+	Vector2D hillPos;
+	for (int n = 0; n < numberOfHills; ++n) {
+		hillPos = Vector2D((float)((rand() % (num_cell_x - 6)) + 3), (float)((rand() % (num_cell_y - 6)) + 3));
+
+		for (int i = hillPos.x - 3; i <= hillPos.x + 3; ++i) {
+			for (int j = hillPos.y - 3; j <= hillPos.y + 3; ++j) {
+				int manhDist = Heuristics::manhatanDistance(Vector2D(i, j), hillPos);
+				if (manhDist < 4) {
+					terrain[i][j] += (4 - manhDist) * 5; //li suma 10 al pes per cada casella que s'apropa al centre
+					if (terrain[i][j] > maxWeight) maxWeight = terrain[i][j]; //actualitzar maxWeight (serveix per pintar els pesos despres)
+				}
+			}
+		}
+
+	}
+}
+
 void SceneGroupPathFinding::shouldDeleteCoin(Vector2D cell) {
 	if (isThereCoin(cell)) {
 		if (coins.size() == 1) {
-			createNewCoins(5);
+			createNewCoins(numberOfCoins);
 		}
 		else {
 			for (int i = 0; i < coins.size(); ++i) {

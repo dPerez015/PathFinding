@@ -30,6 +30,8 @@ private:
 	//relacionat amb el pes
 	void createHill(int); //funcio que randomitza zones amb mes pes
 	int maxWeight;
+	void drawHills();
+	int numberOfHills;
 
 	bool throughTunnel = false;
 	Node* findInGraph(Vector2D);

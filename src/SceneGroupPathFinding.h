@@ -27,16 +27,20 @@ private:
 	void createNewCoins(int);
 	bool isThereCoin(Vector2D cell);
 	void shouldDeleteCoin(Vector2D cell);
+	int numberOfCoins;
 
 	//graph creation
 	std::vector<std::vector<Node>> graph;
 	int wallsOnCollumn(int);
 	int wallsonCollumn(int, int);
-	int v, h;
-	int v1, h1, numDelNodes;
+
+	//relacionat amb el pes
+	void createHill(int); //funcio que randomitza zones amb mes pes
+	int maxWeight;
+	void drawHills();
+	int numberOfHills;
+
 	bool throughTunnel = false;
-	void createGraphPorPasos();
-	void deleteNodesPorPaso();
 	Node* findInGraph(Vector2D);
 	void createGraph();
 	//debugGraph
