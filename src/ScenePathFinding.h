@@ -27,6 +27,10 @@ private:
 	int wallsOnCollumn(int);
 	int wallsonCollumn(int, int);
 
+	//relacionat amb el pes
+	void createHill(int); //funcio que randomitza zones amb mes pes
+	int maxWeight;
+
 	bool throughTunnel = false;
 	Node* findInGraph(Vector2D);
 	void createGraph();
@@ -56,4 +60,5 @@ private:
 	Vector2D pix2cell(Vector2D pix);
 	bool isValidCell(Vector2D cell);
 	int algorismType;
+	
 };

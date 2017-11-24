@@ -1,4 +1,5 @@
 #include "ScenePathFinding.h"
+#define HILLS_NUM 5;
 
 using namespace std;
 
@@ -423,6 +424,12 @@ void ScenePathFinding::initMaze()
 		vector<int> terrain_col(num_cell_y, 1); 
 		terrain.push_back(terrain_col);
 	}
+
+	maxWeight = 1;
+
+	//posar a random position uns quants cims(mes pes)
+	createHill(5);
+
 	// (2nd) set to zero all cells that belong to a wall
 	int offset = CELL_SIZE / 2;
 	for (int i = 0; i < num_cell_x; i++)
@@ -443,8 +450,7 @@ void ScenePathFinding::initMaze()
 		}
 	}
 
-	//posar a random position uns quants cims(mes pes)
-	//TODO
+	
 }
 
 bool ScenePathFinding::loadTextures(char* filename_bg, char* filename_coin)
@@ -488,4 +494,22 @@ bool ScenePathFinding::isValidCell(Vector2D cell)
 	if ((cell.x < 0) || (cell.y < 0) || (cell.x >= terrain.size()) || (cell.y >= terrain[0].size()) )
 		return false;
 	return !(terrain[(unsigned int)cell.x][(unsigned int)cell.y] == 0);
+}
+
+void ScenePathFinding::createHill(int numberOfHills) {
+	Vector2D hillPos;
+	for (int n = 0; n < numberOfHills; ++n) {
+		hillPos = Vector2D((float)((rand() % (num_cell_x-6))+3), (float)((rand() % (num_cell_y-6))+3));
+
+		for (int i = hillPos.x-3; i <= hillPos.x+3; ++i) {
+			for (int j = hillPos.y - 3; j <= hillPos.y + 3; ++j) {
+				int manhDist = Heuristics::manhatanDistance(Vector2D(i, j), hillPos);
+				if (manhDist < 4) {
+					terrain[i][j] += (4 - manhDist) * 10; //li suma 10 al pes per cada casella que s'apropa al centre
+					if (terrain[i][j] > maxWeight) maxWeight = terrain[i][j]; //actualitzar maxWeight (serveix per pintar els pesos despres)
+				}
+			}
+		}
+
+	}
 }
